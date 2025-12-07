@@ -30,7 +30,6 @@ def set_dark_palette(app: QApplication) -> None:
 
     palette = QPalette()
 
-    # Основные поверхности
     palette.setColor(QPalette.Window, QColor(53, 53, 53))
     palette.setColor(QPalette.WindowText, Qt.white)
     palette.setColor(QPalette.Base, QColor(35, 35, 35))
@@ -42,18 +41,15 @@ def set_dark_palette(app: QApplication) -> None:
     palette.setColor(QPalette.ButtonText, Qt.white)
     palette.setColor(QPalette.BrightText, Qt.red)
 
-    # Линки / выделения
     palette.setColor(QPalette.Link, QColor(42, 130, 218))
     palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
     palette.setColor(QPalette.HighlightedText, Qt.black)
 
-    # Disabled
     palette.setColor(QPalette.Disabled, QPalette.Text, QColor(120, 120, 120))
     palette.setColor(QPalette.Disabled, QPalette.ButtonText, QColor(120, 120, 120))
     palette.setColor(QPalette.Disabled, QPalette.WindowText, QColor(120, 120, 120))
 
     app.setPalette(palette)
-    # Чуть поправим тултипы, чтобы не были радиоактивно-белыми поверх серого
     app.setStyleSheet("""
         QToolTip {
             color: #ffffff;
@@ -70,7 +66,7 @@ def set_light_palette(app: QApplication, original: Optional[QPalette] = None) ->
         app.setPalette(original)
     else:
         app.setPalette(app.style().standardPalette())
-    app.setStyleSheet("")  # убираем тёмные переопределения
+    app.setStyleSheet("")
 
 
 # --------- ГЛАВНОЕ ОКНО --------- #
@@ -83,7 +79,6 @@ class MainWindow(QMainWindow):
 
         self.project = ModProject()
 
-        # сохраним исходную палитру, чтобы уметь вернуться из тьмы
         app = QApplication.instance()
         self._original_palette: Optional[QPalette] = app.palette() if app else None
         self.dark_enabled: bool = True
@@ -126,6 +121,13 @@ class MainWindow(QMainWindow):
         dark_theme_act.triggered.connect(self._toggle_dark_theme)
         self._dark_theme_act = dark_theme_act
 
+        # НОВОЕ: создание / удаление объектов
+        add_obj_act = QAction("Добавить объект", self)
+        add_obj_act.triggered.connect(self._add_object)
+
+        del_obj_act = QAction("Удалить объект", self)
+        del_obj_act.triggered.connect(self._delete_object)
+
         menubar = self.menuBar()
         file_menu = menubar.addMenu("Файл")
         file_menu.addAction(open_dir_act)
@@ -138,6 +140,10 @@ class MainWindow(QMainWindow):
         view_menu = menubar.addMenu("Вид")
         view_menu.addAction(dark_theme_act)
 
+        object_menu = menubar.addMenu("Объект")
+        object_menu.addAction(add_obj_act)
+        object_menu.addAction(del_obj_act)
+
         toolbar = self.addToolBar("Основное")
         toolbar.addAction(open_dir_act)
         toolbar.addAction(open_file_act)
@@ -145,6 +151,9 @@ class MainWindow(QMainWindow):
         toolbar.addAction(save_all_act)
         toolbar.addAction(save_dirty_act)
         toolbar.addAction(save_current_act)
+        toolbar.addSeparator()
+        toolbar.addAction(add_obj_act)
+        toolbar.addAction(del_obj_act)
         toolbar.addSeparator()
         toolbar.addAction(dark_theme_act)
 
@@ -164,7 +173,6 @@ class MainWindow(QMainWindow):
     # ---------- загрузка ----------
 
     def _warn_discard_changes(self) -> bool:
-        """Примитивная защита от потери изменений."""
         if not self.project.dirty_files:
             return True
         reply = QMessageBox.question(
@@ -211,6 +219,8 @@ class MainWindow(QMainWindow):
         self._rebuild_tree()
         self.statusBar().showMessage(f"Загружен файл {path}", 5000)
 
+    # ---------- дерево ----------
+
     def _rebuild_tree(self) -> None:
         self.tree.clear()
 
@@ -219,7 +229,8 @@ class MainWindow(QMainWindow):
             if not objs:
                 continue
             root = QTreeWidgetItem([schema.get("label", schema_key)])
-            root.setData(0, Qt.UserRole, None)
+            # в корне теперь храним schema_key, чтобы знать категорию
+            root.setData(0, Qt.UserRole, schema_key)
             self.tree.addTopLevelItem(root)
             for obj in objs:
                 item = QTreeWidgetItem([obj.label()])
@@ -235,11 +246,87 @@ class MainWindow(QMainWindow):
         if current is None:
             self.editor.set_object(None)
             return
-        obj = current.data(0, Qt.UserRole)
-        if isinstance(obj, ModObject):
-            self.editor.set_object(obj)
+        data = current.data(0, Qt.UserRole)
+        if isinstance(data, ModObject):
+            self.editor.set_object(data)
         else:
             self.editor.set_object(None)
+
+    def _current_schema_key(self) -> Optional[str]:
+        """
+        Понять, в какой категории мы сейчас: по выбранному объекту или корневому узлу.
+        """
+        item = self.tree.currentItem()
+        if not item:
+            return None
+        data = item.data(0, Qt.UserRole)
+        if isinstance(data, ModObject):
+            return data.schema_key
+        if isinstance(data, str):
+            return data
+        return None
+
+    def _select_object_in_tree(self, target: ModObject) -> None:
+        """
+        Находит в дереве item, который хранит этот ModObject, и выделяет его.
+        """
+        for i in range(self.tree.topLevelItemCount()):
+            root = self.tree.topLevelItem(i)
+            for j in range(root.childCount()):
+                item = root.child(j)
+                obj = item.data(0, Qt.UserRole)
+                if obj is target:
+                    self.tree.setCurrentItem(item)
+                    return
+
+    # ---------- создание / удаление объектов ----------
+
+    def _add_object(self) -> None:
+        schema_key = self._current_schema_key()
+        if schema_key is None:
+            QMessageBox.information(
+                self,
+                "Добавление объекта",
+                "Выбери категорию или существующий объект, чтобы понять, куда добавлять новый.",
+            )
+            return
+        try:
+            new_obj = self.project.create_object(schema_key)
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось создать объект:\n{e}")
+            return
+
+        self._rebuild_tree()
+        self._select_object_in_tree(new_obj)
+        self.editor.set_object(new_obj)
+        self.statusBar().showMessage(
+            f"Создан новый объект в editor_{schema_key}.json", 5000
+        )
+
+    def _delete_object(self) -> None:
+        item = self.tree.currentItem()
+        if not item:
+            QMessageBox.information(self, "Удаление объекта", "Сначала выбери объект в списке.")
+            return
+        data = item.data(0, Qt.UserRole)
+        if not isinstance(data, ModObject):
+            QMessageBox.information(self, "Удаление объекта", "Нужно выбрать конкретный объект, а не категорию.")
+            return
+
+        obj: ModObject = data
+        reply = QMessageBox.question(
+            self,
+            "Подтверждение удаления",
+            f"Удалить объект {obj.label()} из файла {obj.file_path.name}?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        self.project.delete_object(obj)
+        self.editor.set_object(None)
+        self._rebuild_tree()
+        self.statusBar().showMessage("Объект удалён", 5000)
 
     # ---------- сохранение ----------
 

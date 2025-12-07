@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Dict, Any, Optional, List
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -23,7 +23,9 @@ from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QSizePolicy,
+    QAbstractItemView,
 )
+from PyQt5.QtGui import QTextOption
 
 from schemas import SCHEMAS
 from project import ModProject, ModObject
@@ -47,12 +49,17 @@ class RefListWidget(QWidget):
         self.ref_type = ref_type
 
         self.list_widget = QListWidget(self)
+        # можно редактировать элементы вручную
+        self.list_widget.setEditTriggers(
+            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked
+        )
+
         for val in initial or []:
             if val:
                 QListWidgetItem(str(val), self.list_widget)
 
         self.combo = QComboBox(self)
-        self.combo.setEditable(True)
+        self.combo.setEditable(True)  # можно вбить свой ID
 
         json_type = SCHEMAS.get(ref_type, {}).get("json_type", ref_type)
         ids = self.project.get_ids_for_json_type(json_type)
@@ -133,21 +140,17 @@ class NewFieldDialog(QDialog):
         if not name:
             return None
         ftype = self.type_combo.currentText()
-        return {
-            "name": name,
-            "type": ftype,
-        }
+        return {"name": name, "type": ftype}
 
 
 class ResizableRow(QWidget):
     """
-    Контейнер для строки формы: [editor] [Удалить]
-    Поддерживает вертикальный resize перетаскиванием нижней границы, если resizable=True.
+    Строка формы: [editor + Удалить] + снизу тонкая ручка для ресайза.
     """
 
     def __init__(self, key: str, editor_widget: QWidget,
                  parent_editor: "ObjectEditorWidget",
-                 resizable: bool,
+                 resizable: bool = True,
                  parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.key = key
@@ -155,68 +158,60 @@ class ResizableRow(QWidget):
         self.parent_editor = parent_editor
         self.resizable = resizable
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(editor_widget)
+        vlayout = QVBoxLayout(self)
+        vlayout.setContentsMargins(0, 0, 0, 0)
+
+        hlayout = QHBoxLayout()
+        hlayout.setContentsMargins(0, 0, 0, 0)
+        hlayout.addWidget(editor_widget)
 
         btn = QPushButton("Удалить", self)
         btn.setToolTip("Удалить это поле из объекта JSON.")
         btn.setFixedHeight(28)
         btn.setFixedWidth(90)
         btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        layout.addWidget(btn)
-        layout.setAlignment(btn, Qt.AlignTop)
+        hlayout.addWidget(btn)
+        hlayout.setAlignment(btn, Qt.AlignTop)
+
+        vlayout.addLayout(hlayout)
+
+        # ручка для перетаскивания высоты
+        self.handle = QWidget(self)
+        self.handle.setFixedHeight(4)
+        self.handle.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.handle.setCursor(Qt.SizeVerCursor)
+        vlayout.addWidget(self.handle)
 
         btn.clicked.connect(lambda _=False, k=key: self.parent_editor._delete_field(k))
 
         self._resizing = False
         self._drag_start_global_y = 0
         self._start_height = self.sizeHint().height()
-        self._min_height = self.sizeHint().height()
+        self._min_height = max(self.sizeHint().height(), 24)
         if self.resizable:
-            if self._min_height < 60:
-                self._min_height = 60
             self.setMinimumHeight(self._min_height)
-            self.setMouseTracking(True)
 
-    def mousePressEvent(self, event):
-        if (
-            self.resizable
-            and event.button() == Qt.LeftButton
-            and self.height() - 6 <= event.pos().y() <= self.height()
-        ):
-            self._resizing = True
-            self._drag_start_global_y = event.globalPos().y()
-            self._start_height = self.height()
-            self.setCursor(Qt.SizeVerCursor)
-            event.accept()
-            return
-        super().mousePressEvent(event)
+        self.handle.installEventFilter(self)
 
-    def mouseMoveEvent(self, event):
-        if self._resizing:
-            dy = event.globalPos().y() - self._drag_start_global_y
-            new_h = max(self._start_height + dy, self._min_height)
-            self.setMinimumHeight(new_h)
-            self.resize(self.width(), new_h)
-            self.updateGeometry()
-            event.accept()
-            return
-
-        if self.resizable:
-            if self.height() - 6 <= event.pos().y() <= self.height():
-                self.setCursor(Qt.SizeVerCursor)
-            else:
-                self.unsetCursor()
-        super().mouseMoveEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        if self._resizing and event.button() == Qt.LeftButton:
-            self._resizing = False
-            self.unsetCursor()
-            event.accept()
-            return
-        super().mouseReleaseEvent(event)
+    def eventFilter(self, obj, event):
+        if obj is self.handle and self.resizable:
+            if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                self._resizing = True
+                self._drag_start_global_y = event.globalPos().y()
+                self._start_height = self.height()
+                return True
+            elif event.type() == QEvent.MouseMove and self._resizing:
+                dy = event.globalPos().y() - self._drag_start_global_y
+                new_h = max(self._start_height + dy, self._min_height)
+                self.setMinimumHeight(new_h)
+                self.resize(self.width(), new_h)
+                self.updateGeometry()
+                return True
+            elif event.type() == QEvent.MouseButtonRelease and self._resizing:
+                if event.button() == Qt.LeftButton:
+                    self._resizing = False
+                    return True
+        return super().eventFilter(obj, event)
 
 
 class ObjectEditorWidget(QWidget):
@@ -225,13 +220,13 @@ class ObjectEditorWidget(QWidget):
         self.project = project
         self.current_obj: Optional[ModObject] = None
         self.current_schema: Optional[Dict[str, Any]] = None
-        self.field_widgets: Dict[str, QWidget] = {}  # key -> editor_widget
+        self.field_widgets: Dict[str, QWidget] = {}
         self.fields_meta: Dict[str, Dict[str, Any]] = {}
 
         self.header_label = QLabel("Ничего не выбрано", self)
 
-        # Панель добавления полей
         self.add_combo = QComboBox(self)
+        self.add_combo.setEditable(False)
         self.add_button = QPushButton("Добавить поле", self)
         self.add_button.clicked.connect(self._on_add_field_clicked)
 
@@ -271,7 +266,7 @@ class ObjectEditorWidget(QWidget):
         self.add_combo.addItem("— выбери поле —", None)
 
     def set_object(self, obj: Optional[ModObject]) -> None:
-        # применяем изменения предыдущего объекта перед переключением
+        # применяем изменения перед сменой объекта
         self.apply_changes()
 
         self.current_obj = obj
@@ -295,7 +290,7 @@ class ObjectEditorWidget(QWidget):
         schema_fields = self.current_schema.get("fields", {})
         obj_data = self.current_obj.data
 
-        # 1. Только реальные ключи объекта
+        # реальные ключи объекта
         for key, value in obj_data.items():
             if key in schema_fields:
                 meta = dict(schema_fields[key])
@@ -303,19 +298,15 @@ class ObjectEditorWidget(QWidget):
                 meta = self._make_auto_meta(key, value)
             self.fields_meta[key] = meta
 
-        # 2. Строим строки формы
+        # строим строки
         for key in sorted(self.fields_meta.keys()):
             meta = self.fields_meta[key]
             editor_widget = self._create_field_widget(key, meta)
-
-            # Нужно ли делать строку ресайзабельной
-            resizable = isinstance(editor_widget, (QTextEdit, RefListWidget))
-
             row_widget = ResizableRow(
                 key=key,
                 editor_widget=editor_widget,
                 parent_editor=self,
-                resizable=resizable,
+                resizable=True,
                 parent=self,
             )
 
@@ -324,14 +315,13 @@ class ObjectEditorWidget(QWidget):
             help_text = meta.get("help")
             if help_text:
                 label.setToolTip(help_text)
-            label._field_key = key       # type: ignore[attr-defined]
-            label._help_text = help_text # type: ignore[attr-defined]
+            label._field_key = key      # type: ignore[attr-defined]
+            label._help_text = help_text  # type: ignore[attr-defined]
             label.clicked.connect(self._on_label_clicked)
 
             self.form.addRow(label, row_widget)
             self.field_widgets[key] = editor_widget
 
-        # 3. Обновляем список доступных для добавления полей
         self._rebuild_add_combo()
 
     def _rebuild_add_combo(self) -> None:
@@ -350,7 +340,6 @@ class ObjectEditorWidget(QWidget):
         self.add_combo.addItem("Создать своё поле…", "__custom__")
 
     def _make_auto_meta(self, key: str, value: Any) -> Dict[str, Any]:
-        # угадываем тип по значению
         if isinstance(value, bool):
             ftype = "bool"
         elif isinstance(value, int):
@@ -391,6 +380,8 @@ class ObjectEditorWidget(QWidget):
             return []
         if ftype == "json":
             return {}
+        if ftype == "enum":
+            return ""
         return ""
 
     def _on_label_clicked(self) -> None:
@@ -400,7 +391,7 @@ class ObjectEditorWidget(QWidget):
         field_name = getattr(label, "_field_key", None)
         help_text = getattr(label, "_help_text", None)
         if not help_text:
-            help_text = f"Поле {field_name}. Подробности смотри в JSON_INFO и профильной документации."
+            help_text = f"Поле {field_name}. Подробности смотри в JSON_INFO и документации CDDA."
         QMessageBox.information(self, "Справка по полю", help_text)
 
     def _on_add_field_clicked(self) -> None:
@@ -450,8 +441,6 @@ class ObjectEditorWidget(QWidget):
         self.project.mark_dirty(self.current_obj.file_path)
         self._rebuild_form()
 
-    # ------- удаление полей -------
-
     def _delete_field(self, key: str) -> None:
         if not self.current_obj:
             return
@@ -469,18 +458,52 @@ class ObjectEditorWidget(QWidget):
         self.project.mark_dirty(self.current_obj.file_path)
         self._rebuild_form()
 
-    # ------- фабрика виджетов -------
+    def _make_vertical_expanding(self, w: QWidget) -> QWidget:
+        sp = w.sizePolicy()
+        sp.setVerticalPolicy(QSizePolicy.Expanding)
+        w.setSizePolicy(sp)
+        return w
+
+    # ---------- фабрика виджетов ----------
 
     def _create_field_widget(self, key: str, meta: Dict[str, Any]) -> QWidget:
         field_type = meta.get("type", "string")
         val = self.current_obj.data.get(key) if self.current_obj else None
 
-        # string
-        if field_type == "string":
-            w = QLineEdit(self)
+        # ENUM / choices → комбобокс + ручной ввод
+        choices = meta.get("choices") or meta.get("options")
+        if field_type == "enum" or choices:
+            w = QComboBox(self)
+            w.setEditable(True)
+
+            if isinstance(choices, (list, tuple)):
+                for ch in choices:
+                    w.addItem(str(ch))
+
             if val is not None:
-                w.setText(str(val))
-            return w
+                sval = str(val)
+                idx = w.findText(sval)
+                if idx >= 0:
+                    w.setCurrentIndex(idx)
+                else:
+                    if sval:
+                        w.addItem(sval)
+                        w.setCurrentIndex(w.count() - 1)
+                    else:
+                        w.setEditText(sval)
+
+            return self._make_vertical_expanding(w)
+
+        # string → QTextEdit с переносом, по умолчанию в одну строку
+        if field_type == "string":
+            w = QTextEdit(self)
+            w.setWordWrapMode(QTextOption.WordWrap)
+            if val is not None:
+                w.setPlainText(str(val))
+            fm = w.fontMetrics()
+            one_line = int(fm.height() * 1.6)
+            w.setMinimumHeight(one_line)
+            return self._make_vertical_expanding(w)
 
         # int
         if field_type == "int":
@@ -489,7 +512,7 @@ class ObjectEditorWidget(QWidget):
             w.setMaximum(meta.get("max", 1_000_000))
             if isinstance(val, int):
                 w.setValue(val)
-            return w
+            return self._make_vertical_expanding(w)
 
         # float
         if field_type == "float":
@@ -499,22 +522,24 @@ class ObjectEditorWidget(QWidget):
             w.setDecimals(4)
             if isinstance(val, (int, float)):
                 w.setValue(float(val))
-            return w
+            return self._make_vertical_expanding(w)
 
         # bool
         if field_type == "bool":
             w = QCheckBox(self)
             if isinstance(val, bool):
                 w.setChecked(val)
-            return w
+            return self._make_vertical_expanding(w)
 
-        # list_string / flags
+        # list_string / flags → многострочный, но стартует одной строкой
         if field_type in ("list_string", "flags"):
             w = QTextEdit(self)
             if isinstance(val, list):
                 w.setPlainText("\n".join(str(v) for v in val))
-            w.setMinimumHeight(60)
-            return w
+            fm = w.fontMetrics()
+            one_line = int(fm.height() * 1.6)
+            w.setMinimumHeight(one_line)
+            return self._make_vertical_expanding(w)
 
         # ref_list
         if field_type == "ref_list":
@@ -523,12 +548,13 @@ class ObjectEditorWidget(QWidget):
                 w = QTextEdit(self)
                 if isinstance(val, list):
                     w.setPlainText("\n".join(str(v) for v in val))
-                w.setMinimumHeight(60)
-                return w
+                fm = w.fontMetrics()
+                one_line = int(fm.height() * 1.6)
+                w.setMinimumHeight(one_line)
+                return self._make_vertical_expanding(w)
             initial = val if isinstance(val, list) else []
             w = RefListWidget(self.project, ref_type, initial, self)
-            w.setMinimumHeight(80)
-            return w
+            return self._make_vertical_expanding(w)
 
         # json
         if field_type == "json":
@@ -538,12 +564,15 @@ class ObjectEditorWidget(QWidget):
                     w.setPlainText(json_dumps_pretty(val))
                 except Exception:
                     w.setPlainText(str(val))
-            w.setMinimumHeight(80)
-            return w
+            fm = w.fontMetrics()
+            one_line = int(fm.height() * 1.6)
+            w.setMinimumHeight(one_line)
+            return self._make_vertical_expanding(w)
 
-        # string_or_translation
+        # string_or_translation → тоже многострочный
         if field_type == "string_or_translation":
-            w = QLineEdit(self)
+            w = QTextEdit(self)
+            w.setWordWrapMode(QTextOption.WordWrap)
             if isinstance(val, dict):
                 text = val.get("str")
                 if text is None:
@@ -552,18 +581,21 @@ class ObjectEditorWidget(QWidget):
                             text = v
                             break
                 if text is not None:
-                    w.setText(str(text))
+                    w.setPlainText(str(text))
             elif val is not None:
-                w.setText(str(val))
-            return w
+                w.setPlainText(str(val))
+            fm = w.fontMetrics()
+            one_line = int(fm.height() * 1.6)
+            w.setMinimumHeight(one_line)
+            return self._make_vertical_expanding(w)
 
-        # fallback
+        # запасной вариант
         w = QLineEdit(self)
         if val is not None:
             w.setText(str(val))
-        return w
+        return self._make_vertical_expanding(w)
 
-    # ------- запись значений из виджетов в объект -------
+    # ---------- запись значений ----------
 
     def apply_changes(self) -> None:
         if not self.current_obj or not self.fields_meta:
@@ -583,34 +615,48 @@ class ObjectEditorWidget(QWidget):
     def _read_widget_value(self, key: str, meta: Dict[str, Any],
                            widget: QWidget, old_val: Any) -> Any:
         field_type = meta.get("type", "string")
+        choices = meta.get("choices") or meta.get("options")
+
+        # enum / choices
+        if field_type == "enum" or choices:
+            if isinstance(widget, QComboBox):
+                return widget.currentText()
+            return old_val
 
         # string
         if field_type == "string":
-            assert isinstance(widget, QLineEdit)
-            return widget.text()
+            if isinstance(widget, QTextEdit):
+                return widget.toPlainText()
+            if isinstance(widget, QLineEdit):
+                return widget.text()
+            return old_val
 
         # int
         if field_type == "int":
-            assert isinstance(widget, QSpinBox)
-            return int(widget.value())
+            if isinstance(widget, QSpinBox):
+                return int(widget.value())
+            return old_val
 
         # float
         if field_type == "float":
-            assert isinstance(widget, QDoubleSpinBox)
-            return float(widget.value())
+            if isinstance(widget, QDoubleSpinBox):
+                return float(widget.value())
+            return old_val
 
         # bool
         if field_type == "bool":
-            assert isinstance(widget, QCheckBox)
-            return bool(widget.isChecked())
+            if isinstance(widget, QCheckBox):
+                return bool(widget.isChecked())
+            return old_val
 
         # list_string / flags
         if field_type in ("list_string", "flags"):
-            assert isinstance(widget, QTextEdit)
-            text = widget.toPlainText().strip()
-            if not text:
-                return []
-            return [line.strip() for line in text.splitlines() if line.strip()]
+            if isinstance(widget, QTextEdit):
+                text = widget.toPlainText().strip()
+                if not text:
+                    return []
+                return [line.strip() for line in text.splitlines() if line.strip()]
+            return old_val
 
         # ref_list
         if field_type == "ref_list":
@@ -625,31 +671,36 @@ class ObjectEditorWidget(QWidget):
 
         # json
         if field_type == "json":
-            assert isinstance(widget, QTextEdit)
-            text = widget.toPlainText().strip()
-            if not text:
-                return {}
-            try:
-                return json_load_relaxed(text)
-            except Exception as e:
-                QMessageBox.warning(
-                    self,
-                    "Ошибка JSON",
-                    f"Поле '{key}': не удалось разобрать JSON:\n{e}",
-                )
-                return old_val if old_val is not None else {}
+            if isinstance(widget, QTextEdit):
+                text = widget.toPlainText().strip()
+                if not text:
+                    return {}
+                try:
+                    return json_load_relaxed(text)
+                except Exception as e:
+                    QMessageBox.warning(
+                        self,
+                        "Ошибка JSON",
+                        f"Поле '{key}': не удалось разобрать JSON:\n{e}",
+                    )
+                    return old_val if old_val is not None else {}
+            return old_val
 
         # string_or_translation
         if field_type == "string_or_translation":
-            assert isinstance(widget, QLineEdit)
-            text = widget.text()
+            if isinstance(widget, QTextEdit):
+                text = widget.toPlainText()
+            elif isinstance(widget, QLineEdit):
+                text = widget.text()
+            else:
+                return old_val
             if isinstance(old_val, dict):
                 new_obj = dict(old_val)
                 new_obj["str"] = text
                 return new_obj
             return text
 
-        # fallback
+        # запасной случай
         if isinstance(widget, QLineEdit):
             return widget.text()
         if isinstance(widget, QTextEdit):
@@ -657,7 +708,7 @@ class ObjectEditorWidget(QWidget):
         return old_val
 
 
-# утилиты
+# утилиты JSON
 import json
 import re
 from typing import Any
