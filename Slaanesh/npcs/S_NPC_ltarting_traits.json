@@ -1,0 +1,86 @@
+[
+  {
+    "//": "Добавляет неписю несколько из этих черт.",
+    "type": "trait_group",
+    "id": "NPC_starting_traits",
+    "subtype": "collection",
+    "traits": [
+      { "group": "trait_group_SEX", "prob": 100 },
+	  { "group": "trait_group_ANUS", "prob": 100 },
+	  { "group": "trait_group_BREASTS_N", "prob": 100 },
+	  { "group": "trait_group_BREASTS_S", "prob": 50 },
+	  { "group": "trait_group_hair_pubic", "prob": 100 },
+	  { "group": "trait_group_hair_armpit", "prob": 100 }
+    ]
+  },
+  {
+    "//": "Выбирает одну из черт. prob выравнивай в 100",
+    "type": "trait_group",
+    "id": "trait_group_SEX",
+    "subtype": "distribution",
+	/*
+	"gender": "female",
+	"female": [], 
+	"херня": не работает
+	*/
+    "traits": [
+      { "trait": "VAGINA", "variant": "S", "prob": 15 },
+	  { "trait": "VAGINA", "variant": "M", "prob": 30 },
+      { "trait": "VAGINA", "variant": "B", "prob": 5 },
+	  { "trait": "PENIS", "variant": "S", "prob": 15 },
+	  { "trait": "PENIS", "variant": "M", "prob": 30 },
+      { "trait": "PENIS", "variant": "B", "prob": 5 }
+			]
+  },
+  {
+    "type": "trait_group",
+    "id": "trait_group_BREASTS_S",
+    "subtype": "distribution",
+    "traits": [
+      { "trait": "BREASTS_SIZE", "variant": "S", "prob": 50 },
+	  { "trait": "BREASTS_SIZE", "variant": "M", "prob": 30 },
+	  { "trait": "BREASTS_SIZE", "variant": "B", "prob": 15 },
+	  { "trait": "XL_BREASTS", "prob": 5 }
+			]
+  },
+    {
+    "type": "trait_group",
+    "id": "trait_group_BREASTS_N",
+    "subtype": "distribution",
+    "traits": [
+      { "trait": "BREASTS_SIZE", "variant": "2", "prob": 85 },
+	  { "trait": "BREASTS_SIZE", "variant": "4", "prob": 10 },
+	  { "trait": "BREASTS_SIZE", "variant": "6", "prob": 5 }
+	  ]
+  },
+    {
+    "type": "trait_group",
+    "id": "trait_group_ANUS",
+    "subtype": "distribution",
+    "traits": [
+      { "trait": "ANUS_SIZE", "variant": "S", "prob": 70 },
+	  { "trait": "ANUS_SIZE", "variant": "M", "prob": 25 },
+	  { "trait": "ANUS_SIZE", "variant": "B", "prob": 5 }
+	  ]
+  },
+  {
+    "type": "trait_group",
+    "id": "trait_group_hair_pubic",
+    "subtype": "distribution",
+    "traits": [
+      { "trait": "pubic_hair", "variant": "hairy", "prob": 40 },
+	  { "trait": "pubic_hair", "variant": "norm", "prob": 50 },
+      { "trait": "pubic_hair", "variant": "hairless", "prob": 10 }
+    ]
+  },
+  {
+    "type": "trait_group",
+    "id": "trait_group_hair_armpit",
+    "subtype": "distribution",
+    "traits": [
+      { "trait": "armpit_hair", "variant": "hairy", "prob": 30 },
+	  { "trait": "armpit_hair", "variant": "norm", "prob": 55 },
+      { "trait": "armpit_hair", "variant": "hairless", "prob": 15 }
+    ]
+  }
+]

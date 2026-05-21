@@ -1,0 +1,36 @@
+[
+    {
+        "type":"GENERIC",
+        "id": "dildo_bat",
+        "symbol": ")",
+        "color": "pink",
+        "name": "Дилдо бита",
+        "name_plural": "дилдо биты",
+        "description": "До смешного большой фиолетовый фаллоимитатор длиной около метра. На ручке едва заметно выгравировано: 'Абсурдность секс-игрушки и смертоносность бейсбольной биты'.",
+        "price": 4000,
+        "material": "plastic",
+        "techniques" : ["WBLOCK_1", "BRUTAL"],
+        "flags" : ["DURABLE_MELEE", "NONCONDUCTIVE"],
+        "weight": 2000,
+        "volume": 12,
+        "bashing": 21,
+        "category" : "weapons",
+        "to_hit": 2
+  },
+      {
+        "type":"GENERIC",
+        "id": "small_whip",
+        "symbol": "/",
+        "color": "brown",
+        "name": "Маленький кожанный хлыст",
+        "name_plural": "маленькие хлысты",
+        "description": "Небольшой кожаный хлыст. Обычно используется в БДСМ и прелюдиях. В качестве оружия используется редко.",
+        "price": 400,
+        "material": "leather",
+        "weight": 200,
+        "volume": 3,
+        "cutting": 5,
+        "category" : "weapons",
+        "to_hit": -1
+		}
+]

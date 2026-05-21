@@ -1,0 +1,60 @@
+# Penis
+HEMIPENIS
+L_HEMIPENIS
+S_PENIS
+PENIS
+H_PENIS
+S_DICK
+PISTIL
+
+#vagina
+S_VAGINA
+VAGINA
+B_VAGINA
+EL_VAGINA
+STAMEN
+
+#anus
+S_ANUS
+ANUS
+L_ANUS
+EL_ANUS
+
+#Breasts
+2_BREASTS
+4_BREASTS
+6_BREASTS
+S_BREASTS
+M_BREASTS
+XL_BREASTS
+
+#other
+THRESH_SLAANESH
+ANDROGIN
+CLOACA
+REPRODUCTIVE_TENTACLE
+ARM_TENTACLE left
+S_CLAW right
+TAIL_TENTACLE
+TAIL_SPIKE
+pubic_hair
+armpit_hair
+
+( o )( o )
+( ๏ 人 ๏ )
+( ͜ₒ ㅅ ͜ₒ)
+( . ㅅ . )
+( .  . )
+
+(.(.(. V .).).)
+(.(. V .).)
+(. V .)
+
+
+)(0)(
+)(l)(
+)(¡)(
+
+({.})
+({o})
+({O})

@@ -1,0 +1,11 @@
+[
+	{
+	    "type": "mutation_category",
+        "id": "SLAANESH",
+        "name": "SLAANESH",
+        "threshold_mut": "THRESH_SLAANESH",
+        "mutagen_message": "Ваш разум наполнен образами различных удовольствий... а потом это проходит.",
+        "memorial_message": "Максимум праздности.",
+		"vitamin": "mutagen_slaanesh"
+	}
+]

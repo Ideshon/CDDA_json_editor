@@ -107,6 +107,11 @@ NPC_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Остальное (opinion, personality, eoc_on_talk и пр.).",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

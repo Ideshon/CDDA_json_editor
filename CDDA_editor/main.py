@@ -74,7 +74,7 @@ def set_light_palette(app: QApplication, original: Optional[QPalette] = None) ->
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("CDDA 0.G JSON редактор модов")
+        self.setWindowTitle("CDDA 0.G JSON редактор")
         self.resize(1300, 800)
 
         self.project = ModProject()
@@ -100,22 +100,22 @@ class MainWindow(QMainWindow):
         self._create_actions()
 
     def _create_actions(self) -> None:
-        open_dir_act = QAction("Открыть папку мода", self)
+        open_dir_act = QAction("Открыть папку", self)
         open_dir_act.triggered.connect(self._open_mod_folder)
 
-        open_file_act = QAction("Открыть JSON-файл…", self)
+        open_file_act = QAction("Открыть JSON", self)
         open_file_act.triggered.connect(self._open_mod_file)
 
-        save_all_act = QAction("Сохранить все файлы", self)
+        save_all_act = QAction("Сохранить все", self)
         save_all_act.triggered.connect(self._save_all)
 
-        save_dirty_act = QAction("Сохранить изменённые файлы", self)
+        save_dirty_act = QAction("Сохранить изменённые", self)
         save_dirty_act.triggered.connect(self._save_dirty)
 
-        save_current_act = QAction("Сохранить файл текущего объекта", self)
+        save_current_act = QAction("Сохранить файл объекта", self)
         save_current_act.triggered.connect(self._save_current_file)
 
-        dark_theme_act = QAction("Темная тема", self)
+        dark_theme_act = QAction("Темная", self)
         dark_theme_act.setCheckable(True)
         dark_theme_act.setChecked(True)
         dark_theme_act.triggered.connect(self._toggle_dark_theme)
@@ -144,17 +144,17 @@ class MainWindow(QMainWindow):
         object_menu.addAction(add_obj_act)
         object_menu.addAction(del_obj_act)
 
-        toolbar = self.addToolBar("Основное")
+        toolbar = self.addToolBar("Файл")
         toolbar.addAction(open_dir_act)
         toolbar.addAction(open_file_act)
         toolbar.addSeparator()
         toolbar.addAction(save_all_act)
         toolbar.addAction(save_dirty_act)
         toolbar.addAction(save_current_act)
-        toolbar.addSeparator()
+        toolbar = self.addToolBar("Объект")
         toolbar.addAction(add_obj_act)
         toolbar.addAction(del_obj_act)
-        toolbar.addSeparator()
+        toolbar = self.addToolBar("Вид")
         toolbar.addAction(dark_theme_act)
 
     # ---------- тёмная тема ----------

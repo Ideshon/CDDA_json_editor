@@ -1,0 +1,142 @@
+{
+    "type": "mutation",
+    "id": "TAIL_FIN",
+    "copy-from": "TAIL_FIN",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_LONG",
+    "copy-from": "TAIL_LONG",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_CATTLE",
+    "copy-from": "TAIL_CATTLE",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_RAT",
+    "copy-from": "TAIL_RAT",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_THICK",
+    "copy-from": "TAIL_THICK",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_RAPTOR",
+    "copy-from": "TAIL_RAPTOR",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_FLUFFY",
+    "copy-from": "TAIL_FLUFFY",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_STING",
+    "copy-from": "TAIL_STING",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TAIL_CLUB",
+    "copy-from": "TAIL_CLUB",
+    "extend": { "cancels": [ "TAIL_TENTACLE" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES",
+    "copy-from": "ARM_TENTACLES",
+    "extend": {"category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES_4",
+    "copy-from": "ARM_TENTACLES_4",
+    "extend": {"category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES_4",
+    "copy-from": "ARM_TENTACLES_4",
+    "extend": {"category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "CLAWS_TENTACLE",
+	"copy-from": "CLAWS_TENTACLE",
+	"extend": {"prereqs": [ "ARM_TENTACLE, S_CLAW" ] }
+  {
+    "type": "mutation",
+    "id": "NAILS",
+    "copy-from": "NAILS",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "CLAWS",
+    "copy-from": "CLAWS",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "TALONS",
+    "copy-from": "TALONS",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "WEBBED",
+    "copy-from": "WEBBED",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES",
+    "copy-from": "ARM_TENTACLES",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES_4",
+    "copy-from": "ARM_TENTACLES_4",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "ARM_TENTACLES_8",
+    "copy-from": "ARM_TENTACLES_8",
+    "extend": { "cancels": [ "S_CLAW" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "DEMON_SKIN",
+    "copy-from": "DEMON_SKIN",
+    "extend": { "category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "DEMON_claws",
+    "copy-from": "DEMON_claws",
+    "extend": { "category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "DEMON_horns",
+    "copy-from": "DEMON_horns",
+    "extend": { "category": [ "SLAANESH" ] }
+  },
+  {
+    "type": "mutation",
+    "id": "HUMAN_ADDONS",
+	"types": [ "hair_pubic", "hair_armpit", "ANUS", "MALE", "FEMALE", "BREASTS", "SIZE_BREASTS", "SEX" ]
+}

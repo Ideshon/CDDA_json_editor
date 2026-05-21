@@ -63,6 +63,11 @@ EFFECT_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Всё остальное: base_mods, scaling_mods, eocs и т.п.",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

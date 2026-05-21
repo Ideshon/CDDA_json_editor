@@ -1,0 +1,18 @@
+[
+  {
+    "type": "profession",
+    "id": "mutant_volunteer_s",
+    "name": { "male": "Жаждущий мутаций", "female": "Жаждущая мутаций" },
+    "description": "Ваши мечты о становлении сверхчеловеческим мутантом посредством генетического изменения, возможно, немного потерпели неудачу, но когда Катаклизм начался, вы и ученые были готовы. А некий покровитель, названный Слаанеш дал свое благословение.",
+    "points": 1,
+    "skills": [ { "level": 2, "name": "cooking" }, { "level": 2, "name": "electronics" } ],
+    "items": {
+	"both": {
+		"items": [ "mutagen_slaanesh", "mutagen_slaanesh", "mutagen_slaanesh", "socks", "boots", "coat_lab", "glasses_safety", "wristwatch", "dress_shirt" ]
+		},
+			"female": [ "skirt" ],
+			"male": [ "pants", "briefs" ]
+    },
+    "flags": [ "SCEN_ONLY" ]
+  }
+]

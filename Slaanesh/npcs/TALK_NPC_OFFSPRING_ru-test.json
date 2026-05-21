@@ -1,0 +1,133 @@
+[
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING",
+    "dynamic_line": [
+      {
+        "concatenate": [
+          {
+            "u_male": true,
+            "yes": "Привет, папа.",
+            "no": "Привет, мама."
+          },
+          " ",
+          {
+            "npc_has_var": "kid_intro_talked",
+            "type": "dialogue",
+            "context": "greet_kid",
+            "value": "yes",
+            "no": "",
+            "yes": "Как ты?"
+          }
+        ]
+      }
+    ],
+    "responses": [
+      {
+        "effect": [
+          {
+            "npc_add_var": "kid_intro_talked",
+            "type": "dialogue",
+            "context": "greet_kid",
+            "value": "yes"
+          },
+          {
+            "npc_add_effect": "offspring_first_talk",
+            "duration": "PERMANENT"
+          }
+        ],
+        "condition": {
+          "not": {
+            "npc_has_effect": "offspring_first_talk"
+          }
+        },
+        "text": "Эй... кажется, тебя что-то тревожит. Что случилось?",
+        "topic": "TALK_NPC_OFFSPRING_BOTHERED"
+      },
+      {
+        "condition": {
+          "npc_has_effect": "offspring_first_talk"
+        },
+        "text": "В порядке. А ты?",
+        "topic": "TALK_NPC_OFFSPRING_GREET"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING_BOTHERED",
+    "dynamic_line": "Наверное, ты хочешь, чтобы я ушёл и начал жить самостоятельно, да?",
+    "responses": [
+      {
+        "text": "Почему ты так думаешь?",
+        "topic": "TALK_NPC_OFFSPRING_WHY_LEAVE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING_WHY_LEAVE",
+    "dynamic_line": "Не знаю... Я видел, как животные уходят от родителей, когда становятся взрослыми, и подумал, что ты можешь хотеть того же. Я не против, если тебе нужно, чтобы я ушёл. Я смогу позаботиться о себе.",
+    "responses": [
+      {
+        "text": "Я думал, что сейчас разумнее держаться вместе.",
+        "topic": "TALK_AGREE_FOLLOW",
+        "effect": "follow",
+        "opinion": {
+          "trust": 1,
+          "value": 1
+        }
+      },
+      {
+        "text": "Да. Возможно, пришло время тебе покинуть гнездо. Береги себя.",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING_GREET",
+    "dynamic_line": "Я просто жил своей жизнью... У меня нет ни цели, ни направления, кроме как выживать.",
+    "responses": [
+      {
+        "text": "Хочешь побыть со мной какое-то время?",
+        "topic": "TALK_NPC_OFFSPRING_ASK_FOLLOW"
+      },
+      {
+        "text": "Понял. Было приятно тебя снова увидеть. Давай ещё как-нибудь встретимся.",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING_ASK_FOLLOW",
+    "dynamic_line": "Ты хочешь, чтобы я побыл с тобой немного?",
+    "responses": [
+      {
+        "text": "Я бы этого хотел.",
+        "topic": "TALK_AGREE_FOLLOW",
+        "effect": "follow",
+        "opinion": {
+          "trust": 1,
+          "value": 1
+        }
+      },
+      {
+        "text": "Погоди. Подумал, что, пожалуй, сейчас не стоит.",
+        "topic": "TALK_NPC_OFFSPRING_ASK_FOLLOW_CANCEL"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_NPC_OFFSPRING_ASK_FOLLOW_CANCEL",
+    "dynamic_line": "Ну ладно.",
+    "responses": [
+      {
+        "text": "Пока.",
+        "topic": "TALK_DONE"
+      }
+    ]
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "type": "talk_topic",
+    "id": "TALK_ALLY_FLIRT",
+    "dynamic_line": "Что за развлечение?",
+    "responses": [
+      {
+        "text": "Я и ты, прямо здесь и прямо сейчас.",
+        "topic": "TALK_ALLY_FLIRT_REALISE"
+      },
+      {
+        "text": "Подожди, нет. Забудь, что я вообще это сказал. Давай двигаться дальше.",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "TALK_ALLY_FLIRT_REALISE",
+    "dynamic_line": {
+      "npc_has_trait": "OFFSPRING",
+      "yes": "Но... мы родственники...",
+      "no": "О! Это... хм..."
+    },
+    "responses": [
+      {
+        "text": "Ты знаешь, что хочешь этого...",
+        "trial": {
+          "type": "PERSUADE",
+          "difficulty": 30
+        },
+        "success": {
+          "topic": "SEX_CONSENSUAL",
+          "opinion": {
+            "trust": 1,
+            "anger": -1,
+            "value": 1
+          }
+        },
+        "failure": {
+          "topic": "FLIRT_DENY"
+        }
+      },
+      {
+        "text": "Или развлекусь только я...",
+        "trial": {
+          "type": "INTIMIDATE",
+          "difficulty": 30
+        },
+        "success": {
+          "topic": "SEX_RAPE",
+          "opinion": {
+            "trust": -6,
+            "anger": 6
+          }
+        },
+        "failure": {
+          "topic": "NO_FUCK_YOU"
+        }
+      },
+      {
+        "text": "Подожди, нет. Забудь, что я вообще это сказал. Давай двигаться дальше.",
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "FLIRT_DENY",
+    "dynamic_line": "Нет. Я не думаю, что понимаю.",
+    "responses": [
+      {
+        "text": "О, э-э... кхм. Тогда ладно. Продолжим.",
+        "opinion": {
+          "trust": -1,
+          "anger": 1
+        },
+        "topic": "TALK_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "NO_FUCK_YOU",
+    "dynamic_line": "Знаешь что? Нет. Иди нахуй.",
+    "responses": [
+      {
+        "text": "Ну и ладно.",
+        "topic": "TALK_DONE",
+        "opinion": {
+          "trust": -6,
+          "anger": 6
+        },
+        "effect": "hostile"
+      }
+    ]
+  }
+]

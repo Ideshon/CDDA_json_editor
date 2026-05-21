@@ -1,0 +1,80 @@
+[
+  {
+    "type": "mutation",
+    "id": "pubic_hair",
+    "name": "S Паховые волосы",
+    "points": 0,
+    "description": "Количество волос в паху.",
+    "starting_trait": true,
+    "valid": false,
+    "purifiable": false,
+    "player_display": true,
+	"visibility": 0,
+    "vanity": true,
+    "variants": [
+      {
+        "id": "hairy",
+        "name": { "str": "S Лобок пушистый" },
+        "description": ")(W)( Густые волосы в паху уменьшают влияние холода.",
+		"ugliness": 1,
+		"enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "CLIMATE_CONTROL_HEAT", "add": 4 } ] }],
+        "weight": 1
+      },
+      {
+        "id": "norm",
+        "name": { "str": "S Лобок волосатый" },
+        "description": ")(Y)( Натуральные волосыб в паху чуть теплее.",
+		"ugliness": 0,
+		"enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "CLIMATE_CONTROL_HEAT", "add": 2 } ] }],        
+		"weight": 2
+      },
+      {
+        "id": "hairless",
+        "name": { "str": "S Лобок безволосый" },
+        "description": ")( )( Нет даже намека на волосы, выглядит аккуратно.",
+		"ugliness": -2,
+        "weight": 1
+      }
+    ],
+    "types": [ "hair_pubic" ]
+  },
+    {
+    "type": "mutation",
+    "id": "armpit_hair",
+    "name": "S Подмышечные волосы",
+    "points": 0,
+    "description": "Количество волос в подмышках.",
+    "starting_trait": true,
+    "valid": false,
+    "purifiable": false,
+    "player_display": true,
+	"visibility": 0,
+    "vanity": true,
+    "variants": [
+      {
+        "id": "hairy",
+        "name": { "str": "S Подмышки пушистые" },
+        "description": "\\W/ Густые волосы в подмышках уменьшают влияние холода.",
+		"ugliness": 1,
+		"enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "CLIMATE_CONTROL_HEAT", "add": 4 } ] }],
+        "weight": 1
+      },
+      {
+        "id": "norm",
+        "name": { "str": "S Подмышки волосатые" },
+        "description": "\\Y/ Натуральные волосыб в подмышках чуть теплее.",
+		"ugliness": 0,
+		"enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "CLIMATE_CONTROL_HEAT", "add": 2 } ] }],        
+		"weight": 2
+      },
+      {
+        "id": "hairless",
+        "name": { "str": "S Подмышки без волос"},
+        "description": "\\/ Выглядят аккуатно.",
+		"ugliness": -2,
+        "weight": 1
+      }
+    ],
+    "types": [ "hair_armpit" ]
+  }
+]

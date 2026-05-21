@@ -1,0 +1,71 @@
+[
+{
+    "type": "mutation",
+    "id": "THRESH_SLAANESH",
+    "name": { "str": "S СЛААНЕШ" },
+    "points": 1,
+    "description": "Хорошо, когда есть так много способов получить удовольствие. Но как получить еще больше?",
+	"spells_learned": [ [ "vicious_tentacle", 1 ], [ "bio_grotesque", 1 ], [ "biomancer_paralytic_dart", 1 ], [ "biomancer_coagulant_weave", 1 ], [ "summon_wisps", 1 ], [ "blinding_flash", 1 ], [ "obfuscated_body", 1 ], [ "invisibility", 1 ] ],
+	"visibility": 10,
+	"ugliness": -20,
+    "valid": false,
+    "purifiable": true,
+	"types": [ "ATTRACTIVENESS" ],
+    "threshold": true
+  },
+  
+  {
+	"type": "mutation",
+	"id": "PISTIL",
+	"name": { "str": "S Пестик" },
+    "points": 1,
+    "visibility": 1,
+    "ugliness": -1,
+	"description": "Пестик.",
+	"starting_trait": false,
+	"category": [ "PLANT", "ELFA" ],
+	"anger_relations": [[ "PLANT", -20 ], ["HUMAN", -10]], 
+	"\\": "Спавн спор?"
+   },
+{
+	"type": "mutation",
+	"id": "STAMEN",
+	"name": { "str": "S Тычинка" },
+    "points": 1,
+    "visibility": 2,
+    "ugliness": -3,
+	"description": "Тычинка.",
+	"starting_trait": false,
+	"category": [ "PLANT", "ELFA" ],
+	"scent_modifier": 1.1,
+	"scent_type": "sc_flower",
+	"anger_relations": [[ "PLANT", -20 ], ["HUMAN", -10]],
+	"\\": "Феромоны, дружба фракции?"
+   },
+{
+    "type": "mutation",
+    "id": "ANDROGIN",
+    "name": { "str": "S Андрогин" },
+    "points": 0,
+    "visibility": 2,
+    "ugliness": 2,
+	"description": " XY Вы обладаете мужскими и женскими внешними чертами.",
+	"types": [ "ATTRACTIVENESS" ],
+    "purifiable": false,
+	"mixed_effect": true,
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"prereqs": [ "VAGINA"],
+	"prereqs2": [ "PENIS" ]
+	}
+]

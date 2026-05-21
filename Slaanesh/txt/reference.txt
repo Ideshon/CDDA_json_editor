@@ -1,0 +1,111 @@
+For those who would like to try adding stuff using just .json files, here are some ideas on how to implement certain features after looking at the Github:
+
+Arousal
+Add in as an effect_type type with different intensities based on the Modder's preference (0-100) (0-10 with specific names/description for each)
+Add an EOC that adds/checks arousal effect_type:
+If not found, add
+If condition is met:
+NPC
+equips rape martial_art
+allows for sex dialogue
+Monster is allowed to use rape monster_attack
+Reset by any sexual finish but dialogues may allow for multiple rounds
+Pregnancy
+Add in as an effect_type type with different intensities based on trimester and if they are ready for birth
+A stat, speed, and vitamin debuff (... or buff) based on which intensity it is on.
+Once pregnancy is ready for birth, have conditions for birth based on who's giving birth:
+NPC giving birth through dialogue with condition that checks for pregnancy stage and certain consumable modded items for safe delivery
+Monsters giving birth right there and then without no need for dialogue (if monster is able to be spoken, then can add dialogue birthing)
+Player giving birth requiring just the needed consumable modded item
+Birth
+Add in as a SPELL type similar or modified version of the "dermatik_emergence" spell
+spell uses art_eff_pet as an additional effect to make those being born a pet (if children are monsters type like the mod Reproduction)
+spell summons children on mother's or father's id/type (RNG percentage?)
+Summons must not be temporary summons
+Add in an EOC type that calls the birth spell when conditions are met (via dialogue, turn check, etc)
+Conditions are mentioned in pregnancy segment
+Rape
+Add in as a monster_attack type or martial_art type based on user:
+NPC uses rape martial_art as their equipped
+Monster uses rape monster_attack as a special attack
+Player uses rape martial_art when equipped by them
+Add grapple, knockdown, etc, as well as forceful sex positions or actions as technique type
+Have forceful sex positions require grapple, knockdown, stun, etc conditions
+Add pregnancy at techniques with vaginal finish or have vaginal finish as a technique (add pregnancy as a chance)
+Can split rape monster_attack into several specific monster_attack for different messages, effects, etc
+Add pregnancy at vaginal finish (add pregnancy as a chance)
+Sex (NPC/Monsters with dialogues)
+Add in as a bunch of dialogue options with flavor text, conditions, effects, etc
+Called by base game .json files, edit existing conversations/dialogue to call modded ones
+Similar to Reproduction mod
+Have recursive calls that allow to continue sex or end sex
+Add in certain dialogue/response as sex positions, actions, etc
+Add in certain effects at certain situations:
+Pregnancy at vaginal finish (add pregnancy as a chance)
+Climax meter effect (if added) to track progress
+Based on climax meter intensity (0-100), makes or adds changes to dialogues
+Adds Afterglow effect (if added)
+ 
+
+Disclaimer: These implementations are suggestions made based on DOC section of Github and references to small portion to Reproduction mod, base game .jsons, and base game mods. Many are not tested and only a few have been actually tested by me as EOC formatting and functions is still currently being learnt. Think of this as my own guideline that I shared and hope helps those trying on their own.
+
+
+
+
+
+
+Возбуждение
+Добавьте в качестве типа effect_type с разной интенсивностью в зависимости от предпочтений Моддера (0-100) (0-10 с конкретными именами / описанием для каждого)
+Добавьте EOC, который добавляет / проверяет arousal effect_type:
+Если не найден, добавьте
+Если выполнено условие:
+NPC
+оснащает rape martial_art
+позволяет вести секс-диалог
+Монстру разрешено использовать rape monster_attack
+Сброс после любого сексуального завершения, но диалоги могут включать несколько раундов
+Беременность
+Добавьте в качестве типа effect_type с разной интенсивностью в зависимости от триместра беременности и от того, готовы ли они к рождению
+Характеристики, скорость и витаминный дебафф (... или усиление) зависят от интенсивности.
+Как только беременность будет готова к родам, создайте условия для родов в зависимости от того, кто рожает:
+NPC рожает в диалоге с условием, которое проверяет стадию беременности, и некоторыми расходными модифицированными предметами для безопасных родов
+Монстры рождаются прямо там и тогда, без необходимости диалога (если монстр умеет говорить, то можно добавить рождение в диалоге)
+Игроку, рожающему, требуется только необходимый расходный модифицированный предмет
+Рождение
+Добавьте в качестве типа ЗАКЛИНАНИЯ аналогичную или модифицированную версию заклинания "дерматик_эмердженс"
+заклинание использует art_eff_pet в качестве дополнительного эффекта для превращения рождающихся в домашних животных (если дети относятся к типу монстров, как в воспроизведении мода).
+заклинание вызывает детей по идентификатору / типу матери или отца (процент ГСЧ?)
+Призыв не должен быть временным
+Добавьте тип EOC, который вызывает заклинание рождения при выполнении условий (через диалог, проверку хода и т.д.)
+Условия упоминаются в разделе беременность
+Изнасилование
+Добавить в качестве типа monster_attack или martial_art в зависимости от пользователя:
+NPC использует rape martial_art в качестве своего снаряжения
+Монстр использует rape monster_attack в качестве специальной атаки
+Игрок использует rape martial_art, когда у него есть снаряжение
+Добавьте захват, нокдаун и т.д., А также сильные сексуальные позиции или действия в качестве типа техники
+Для сильных сексуальных поз требуются захваты, нокдаун, оглушение и т.д.
+Добавить беременность при техниках с вагинальным финишем или использовать вагинальный финиш в качестве техники (добавить беременность как шанс)
+Можно разделить rape monster_attack на несколько конкретных monster_attack для разных сообщений, эффектов и т. Д
+Добавить беременность при вагинальном оргазме (добавить беременность как шанс)
+Секс (NPC / Монстры с диалогами)
+Добавьте в качестве опции множество диалогов с текстом, условиями, эффектами и т. Д
+Вызывается базовой игрой.файлы json, редактируйте существующие диалоги, чтобы вызывать модифицированные
+Похож на мод для воспроизведения
+Есть рекурсивные вызовы, которые позволяют продолжить секс или закончить секс
+Добавлять определенные диалоги / реакции в виде сексуальных поз, действий и т. Д
+Добавляйте определенные эффекты в определенных ситуациях:
+Беременность при вагинальном оргазме (добавьте беременность как шанс)
+Эффект измерителя кульминации (если добавлен) для отслеживания прогресса
+В зависимости от интенсивности индикатора кульминации (0-100) вносит или дополняет изменения в диалоги
+Добавляет эффект послесвечения (если добавлен)
+ 
+ 
+ Егор, [04.12.2024 11:20]
+изнасиловав зомби есть шанс выпадения мрнстра получеловек
+
+Егор, [04.12.2024 11:20]
+с резистом кматаке зомби
+
+Егор, [04.12.2024 11:21]
+добавить стартовый клас

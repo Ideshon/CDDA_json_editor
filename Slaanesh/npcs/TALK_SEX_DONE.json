@@ -1,0 +1,37 @@
+[
+  {
+    "type": "talk_topic",
+    "id": "SEX_CON_DONE",
+    "dynamic_line": "Ага.",
+    "responses": [
+      {
+        "text": "Нам вроде как пора идти.",
+        "topic": "SEX_CON_DONE_DONE"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "SEX_CON_DONE_DONE",
+    "dynamic_line": "Ты прав",
+    "responses": [
+      {
+        "text": "Пошли.",
+        "topic": "TALK_DONE",
+        "effect": "morale_chat_activity"
+      }
+    ]
+  },
+  {
+    "type": "talk_topic",
+    "id": "SEX_RAPE_DONE",
+    "dynamic_line": "... ок.",
+    "responses": [
+      {
+        "text": "Хммф.",
+        "topic": "TALK_DONE",
+        "effect": "morale_chat_activity"
+      }
+    ]
+  }
+]

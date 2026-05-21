@@ -1,0 +1,10 @@
+[
+    {
+    "type": "mutation",
+    "id": "OFFSPRING",
+    "name": { "str": "Offspring" },
+    "points": 0,
+    "description": "Это отмечает NPC как вашего потомка.",
+    "starting_trait": false
+  }
+]

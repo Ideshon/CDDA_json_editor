@@ -210,6 +210,6 @@ from typing import Any
 
 
 def json_load_relaxed(text: str) -> Any:
-    text = re.sub(r"//.*", "", text)
+    # text = re.sub(r"//.*", "", text)
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
     return json.loads(text)

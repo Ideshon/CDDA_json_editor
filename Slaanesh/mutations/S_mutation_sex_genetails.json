@@ -1,0 +1,569 @@
+[
+  {
+    "type": "mutation",
+    "id": "VAGINA",
+    "name": "S Вагина",
+    "points": 0,
+    "description": "Женский половой орган.",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"active": true,
+	"cost": 1,
+    "fatigue": true,
+	"spawn_item": { "type": "human_ovum", "message": "Происходит овуляция." },
+	"leads_to": [ "ANDROGIN", "EL_VAGINA" ],
+	"cancels": [ "CLOACA" ],
+	"types": [ "FEMALE" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+    "variants": [
+      {
+        "id": "S",
+        "name": { "str": "S Вагина маленькая" },
+        "description": " )(.)( Обычная маленькая вагина.",
+		"ugliness": -2,
+        "weight": 1
+      },
+      {
+        "id": "M",
+        "name": { "str": "S Вагина обычная" },
+        "description": " )(¡)( Обычная вагина.",
+		"ugliness": -1,      
+		"weight": 2
+      },
+      {
+        "id": "B",
+        "name": { "str": "S Вагина болшая" },
+        "description": " )(v)( Обычная большая вагина.",
+		"ugliness": 1,
+        "weight": 1
+      }
+    ]
+  },
+  {
+    "type": "mutation",
+    "id": "VAGINA_L",
+    "name": "S Пизда огромная",
+    "points": 0,
+    "description": " )(O)( Огромная, глубокая пизда. Вы ходите на раскорячку. Кажется это перебор.",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"active": true,
+	"cost": 1,
+    "fatigue": true,
+	"spawn_item": { "type": "human_ovum", "message": "Происходит овуляция." },
+	"//": "prereqs и leads vagina нужно протестить и настроить",
+	"leads_to": [ "ANDROGIN", "EL_VAGINA" ],
+	"cancels": [ "CLOACA" ],
+	"prereqs": [ "VAGINA" ],
+	"types": [ "FEMALE" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"ugliness": 3,
+	"weight": 1,
+	"passive_mods" : {"dex_mod": -1}
+  },
+  {
+    "type": "mutation",
+    "id": "EL_VAGINA",
+    "name": { "str": "S Вагина эластичная" },
+    "points": 1,
+    "visibility": 0,
+    "ugliness": -5,
+	"description": "Растягивающаяся в больших пределах вагина слаанешита.",
+	"types": [ "FEMALE" ],
+    "purifiable": true,
+	"mixed_effect": true,
+	"vanity": false,
+	"valid": true,
+	"category": [ "SLAANESH" ],
+	"allowed_category": [ "SLAANESH" ],
+	"prereqs": [ "VAGINA" ], 
+	"threshreq": [ "THRESH_SLAANESH" ],
+"passive_mods" : {"dex_mod": 1}
+	},
+	{
+    "type": "mutation",
+    "id": "HPENIS",
+    "name": "S Хемипенис",
+    "points": 1,
+    "description": "Мужской половой орган рептилии.",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"cancels": [ "PENIS", "H_PENIS", "CLOACA" ],
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"active": true,
+	"cost": 1,
+    "fatigue": true,
+	"spawn_item": { "type": "human_sperm", "message": "You produce some sperm." },
+	"leads_to": [ "ANDROGIN" ],
+	"types": [ "MALE" ],
+	"category": [ 
+	"RAPTOR", 
+	"CHIMERA", 
+	"SLAANESH",
+	"LIZARD"
+	],
+	"allowed_category": [ 
+	"RAPTOR", 
+	"CHIMERA", 
+	"SLAANESH",
+	"LIZARD"
+	],
+    "variants": [
+			{
+        "id": "S",
+        "name": { "str": "S Хемипенис маленький" },
+        "description": "<-Y-> Маленький пенис рептилии.",
+		"ugliness": 1,
+        "weight": 1
+			},
+			{
+        "id": "M",
+        "name": { "str": "S Хемипенис обычный" },
+        "description": "<--Y--> Раздвоенный пенис рептилии.",
+		"ugliness": 2,
+        "weight": 2
+			},
+			{
+        "id": "B",
+        "name": { "str": "S Хемипенис большой" },
+        "description": " <===Y===> Раздвоенный большой пенис рептилии.",
+		"social_modifiers": { "intimidate": 1 },
+		"ugliness": 3,
+		"weight": 1
+			}
+		]
+	},
+	{
+    "type": "mutation",
+    "id": "PENIS",
+    "name": "S Пенис",
+    "points": 0,
+    "description": "Мужской половой орган.",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"cancels": [ "HPENIS", "CLOACA" ],
+	"changes_to": [ "H_PENIS" ],
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"active": true,
+	"cost": 1,
+    "fatigue": true,
+	"spawn_item": { "type": "human_sperm", "message": "Вы производите немного спермы." },
+	"leads_to": [ "ANDROGIN", "S_DICK" ],
+	"types": [ "MALE" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+    "variants": [
+			{
+        "id": "S",
+        "name": { "str": "S Пенис маленький" },
+        "description": " )B-> Обычный маленький пенис.",
+		"ugliness": 1,
+        "weight": 1
+			},
+			{
+        "id": "M",
+        "name": { "str": "S Пенис обычный" },
+        "description": " )B==> Обычный пенис.",
+		"ugliness": -1,
+        "weight": 2
+			},
+			{
+        "id": "B",
+        "name": { "str": "S Большой член" },
+        "description": ")B=====> Большой пенис.",
+		"ugliness": 1,
+		"weight": 1
+			}
+		]
+	},
+	  {
+    "type": "mutation",
+    "id": "H_PENIS",
+    "name": { "str": "S Член огромный" },
+    "points": 2,
+    "visibility": 6,
+    "ugliness": 3,
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"active": true,
+	"cost": 1,
+    "fatigue": true,
+	"spawn_item": { "type": "human_sperm", "message": "Вы производите немного спермы." },
+	"description": " )BIIIIIIID Ваш хуй настолько огромен и больше похож на тентакли. Вы не можете носить некоторые штаны, и он мешает двигаться. Зато вы можете им бить.",
+	"social_modifiers": { "intimidate": 3 },
+	"starting_trait": false,
+	"valid": true,
+    "purifiable": true,
+	"types": [ "MALE" ],
+	"cancels": [ "HPENIS", "CLOACA" ],
+	"category": [ "SLAANESH" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"prereqs": [ "PENIS" ],
+	"leads_to": [ "ANDROGIN", "S_DICK" ],
+	"restricts_gear": [ "leg_l", "leg_r" ],
+    "allow_soft_gear": true,
+    "attacks": {
+		"blocker_mutations": [ "S_DICK" ],
+      "attack_text_u": "Вы бъете %s своим членом",
+      "attack_text_npc": "%1$s бъет %2$s своим членом",
+      "chance": 3,
+      "strength_damage": { "damage_type": "bash", "amount": 1 }
+    },
+    "passive_mods" : {"dex_mod": -1}
+   },
+   {
+    "type": "mutation",
+    "id": "S_DICK",
+    "name": { "str": "S Член шипастый"},
+	"points": 3,
+    "visibility": 1,
+    "ugliness": 4,
+	"description": " )B###D Ваш член покрыт наростами. Они колючие и вы можете отстреливать их.",
+	"social_modifiers": { "intimidate": 6 },
+	"types": [ "MALE" ],
+	"mixed_effect": true,
+	"spells_learned": [ [ "biomancer_paralytic_dart", 1 ] ],
+	"encumbrance_always": [ [ "leg_l", 1 ], [ "leg_r", 1 ]],
+	"starting_trait": false,
+	"valid": true,
+    "purifiable": true,
+	"prereqs": [ "H_PENIS", "PENIS" ],
+	"category": [ "SLAANESH" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"HUMAN",
+	"SLAANESH",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+		],
+	"threshreq": [ "THRESH_SLAANESH" ],
+	  "attacks": {
+      "attack_text_u": "Вы колите %s своими колючками",
+      "attack_text_npc": "%1$s колит %2$s своими колючками",
+      "chance": 6,
+      "strength_damage": { "damage_type": "stab", "amount": 1 }
+		}
+	},
+	{
+    "type": "mutation",
+    "id": "ANUS_SIZE",
+    "name": "S Анус",
+    "points": 0,
+    "description": "Анус.",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"leads_to": [ "EL_ANUS" ],
+	"cancels": [ "CLOACA" ],
+	"types": [ "ANUS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+    "variants": [
+      {
+        "id": "S",
+        "name": { "str": "S Анус маленький" },
+        "description": " ({:}) Обычный маленький анус.",
+		"ugliness": -2,
+        "weight": 2
+      },
+      {
+        "id": "M",
+        "name": { "str": "S Анус обычный" },
+        "description": " ({*}) Обычный анус.",
+		"ugliness": -1,      
+		"weight": 2
+      },
+      {
+        "id": "B",
+        "name": { "str": "S Анус огромный" },
+        "description": " ({O}) Огромный анус. Вы ходите на раскорячку. Кажется это перебор.",
+		"ugliness": 1,
+        "weight": 1,
+		"weight_capacity_modifier": 1.10,
+		"passive_mods" : {"dex_mod": -1}
+      }
+    ]
+  },
+  {
+    "type": "mutation",
+    "id": "EL_ANUS",
+    "name": { "str": "S Анус эластичный" },
+    "points": 4,
+    "visibility": 0,
+    "ugliness": -3,
+	"description": "Растягивающийся в больших пределах анус слаанешита.",
+	"types": [ "ANUS" ],
+    "purifiable": true,
+	"mixed_effect": true,
+	"valid": true,
+	"category": [ "SLAANESH" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH"
+	],
+	"prereqs": [ "ANUS_SIZE" ],
+	"threshreq": [ "THRESH_SLAANESH" ],
+	"weight_capacity_modifier": 1.10,
+	"passive_mods" : {"dex_mod": 1}
+	},
+	{
+    "type": "mutation",
+    "id": "CLOACA",
+    "name": { "str": "S Клоака" },
+    "points": 1,
+    "visibility": 0,
+    "ugliness": 1,
+	"spells_learned": [ ["en_masturbation1", 1] ],
+	"description": " )(*)( Клоака.",
+	"starting_trait": true,
+    "purifiable": true,
+	"valid": true,
+	"cancels": [ "EL_ANUS", "S_DICK", "EL_VAGINA", "PENIS", "H_PENIS", "HPENIS", "VAGINA", "ANUS_SIZE" ],
+	"category": [
+		"BIRD",
+		"INSECT",
+		"SPIDER",
+		"LIZARD",
+		"RAPTOR", 
+		"FISH"
+	],
+	"allowed_category": [ 
+		"BIRD",
+		"INSECT",
+		"SPIDER",
+		"LIZARD",
+		"RAPTOR", 
+		"FISH"
+	]
+	},
+	{
+    "type": "mutation",
+    "id": "BREASTS_NUMB",
+    "name": "S Груди",
+    "points": 0,
+	"visibility": 1,
+    "description": "Количество грудей",
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"leads_to": [ "BREASTS_SIZE" ],
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+    "variants": [
+      {
+        "id": "2",
+        "name": { "str": "S 2 груди" },
+        "description": " (. v .) Две груди.",
+		"ugliness": -2,
+        "weight": 3
+      },
+      {
+        "id": "4",
+        "name": { "str": "S 4 груди" },
+        "description": " (.(. v .).) Две пары грудей.",
+		"ugliness": -1,      
+		"weight": 2
+      },
+      {
+        "id": "6",
+        "name": { "str": "S 6 грудей" },
+	  "description": " (.(.(. v .).).) Три пары грудей.",
+		"ugliness": 0,
+        "weight": 1
+      }
+    ]
+  },
+  {
+    "type": "mutation",
+    "id": "BREASTS_SIZE",
+    "name": "S Размер груди",
+    "points": 0,
+    "description": "Размер груди",
+	"changes_to": [ "XL_BREASTS" ],
+    "starting_trait": true,
+    "valid": true,
+    "purifiable": true,
+    "player_display": true,
+    "vanity": false,
+	"prereqs": [ "BREASTS_NUMB" ],
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"SLAANESH",
+	"HUMAN",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+    "variants": [
+	   {
+        "id": "S",
+        "name": { "str": "S Плоская грудь" },
+        "description": " [. .] Нет груди.",
+		"ugliness": 0,
+		"visibility": 0,
+        "weight": 1
+      },
+      {
+        "id": "M",
+        "name": { "str": "S Груди S" },
+        "description": " (.  .) Маленькие груди.",
+		"ugliness": -1,
+		"visibility": 1,
+        "weight": 2
+      },
+      {
+        "id": "B",
+        "name": { "str": "S Груди M" },
+        "description": " (. v .) Средние груди.",
+		"ugliness": -1,
+		"visibility": 2,
+		"weight": 2
+      }
+    ]
+  },
+  {
+    "type": "mutation",
+    "id": "XL_BREASTS",
+    "name": { "str": "S Груди XL" },
+    "points": 2,
+    "visibility": 4,
+    "ugliness": 1,
+	"description": " ( o  Y  o ) Очень Большие груди.",
+	"starting_trait": true,
+    "purifiable": true,
+	"prereqs": [ "BREASTS_SIZE" ],
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	
+	"enchantments": [
+	  {
+	    "hit_me_effect": [
+          {
+          "id": "generic_blinding_spray_1",
+          "hit_self": false,
+          "once_in": 22,
+          "message": "Из ваших сисек распыляется молоко под давлением в %2$s.",
+          "npc_message": "Сиськи %1$s распыляют молоко в %2$s."
+          }
+        ]
+	   }
+	 ]
+	}
+]

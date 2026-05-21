@@ -98,6 +98,11 @@ SPELL_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Всё, что не засунуто в форму (field_id, sound_id, learn_spells...).",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

@@ -100,6 +100,11 @@ SCENARIO_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Остальное (hobbies, forced_traits...).",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

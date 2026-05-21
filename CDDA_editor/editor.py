@@ -177,7 +177,7 @@ class ResizableRow(QWidget):
 
         # ручка для перетаскивания высоты
         self.handle = QWidget(self)
-        self.handle.setFixedHeight(4)
+        self.handle.setFixedHeight(8) #4
         self.handle.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.handle.setCursor(Qt.SizeVerCursor)
         vlayout.addWidget(self.handle)
@@ -187,7 +187,7 @@ class ResizableRow(QWidget):
         self._resizing = False
         self._drag_start_global_y = 0
         self._start_height = self.sizeHint().height()
-        self._min_height = max(self.sizeHint().height(), 24)
+        self._min_height = max(self.sizeHint().height(), 24) #24
         if self.resizable:
             self.setMinimumHeight(self._min_height)
 
@@ -538,7 +538,7 @@ class ObjectEditorWidget(QWidget):
                 w.setPlainText("\n".join(str(v) for v in val))
             fm = w.fontMetrics()
             one_line = int(fm.height() * 1.6)
-            w.setMinimumHeight(one_line)
+            w.setMinimumHeight(one_line) #one_line
             return self._make_vertical_expanding(w)
 
         # ref_list
@@ -715,7 +715,7 @@ from typing import Any
 
 
 def json_load_relaxed(text: str) -> Any:
-    text = re.sub(r"//.*", "", text)
+    # text = re.sub(r"//.*", "", text)
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
     return json.loads(text)
 

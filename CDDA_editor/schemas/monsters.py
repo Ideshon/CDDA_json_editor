@@ -167,6 +167,11 @@ MONSTERGROUP_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Остальные поля монстергруппы.",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

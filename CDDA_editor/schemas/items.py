@@ -83,6 +83,11 @@ COMMON_ITEM_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Все остальные поля (use_action, qualities, armor_data, gun_data...).",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

@@ -1,0 +1,13 @@
+[
+  {
+    "type": "overlay_order",
+    "overlay_ordering": [
+	{ "id": [ "WET_SKIN", "DELICATE_SCALE" ], "order": 1400 },
+      { "id": [ "S_BREASTS", "XL_BREASTS", "L_PENIS", "H_PENIS", "PISTIL", "L_HEMIPENIS" ], "order": 2001 },
+      { "id": [ "4_BREASTS", "6_BREASTS", "STAMEN", "S_DICK" ], "order": 2002 },
+	  { "id": [ "ARM_TENTACLE", "S_CLAW" ], "order": 2000 },
+	  { "id": [ "TAIL_SPIKE", "TAIL_TENTACLE" ], "order": 3500 },
+	  { "id": [ "pubic_hair" ], "order": 2000 }
+    ]
+  }
+]

@@ -1,0 +1,168 @@
+[
+{
+    "type": "mutation",
+    "id": "2_BREASTS",
+    "name": { "str": "S Груди 2" },
+    "points": 0,
+    "visibility": 1,
+    "ugliness": -2,
+	"description": " (. v .) Две груди.",
+	"starting_trait": true,
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"changes_to": [ "4_BREASTS" ],
+	"\\": "Груди не доделаны.",
+	"leads_to": [ "XL_BREASTS", "M_BREASTS", "S_BREASTS" ]
+   },
+   {
+    "type": "mutation",
+    "id": "4_BREASTS",
+    "name": { "str": "S Груди 4" },
+    "points": 1,
+    "visibility": 2,
+    "ugliness": 1,
+	"description": " (.(. v .).) Две пары грудей.",
+	"starting_trait": true,
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"changes_to": [ "6_BREASTS" ],
+	"prereqs": [ "2_BREASTS" ],
+	"leads_to": [ "M_BREASTS", "S_BREASTS" ]
+   },
+   {
+    "type": "mutation",
+    "id": "6_BREASTS",
+    "name": { "str": "S Груди 6" },
+    "points": 2,
+    "visibility": 2,
+    "ugliness": 3,
+	"description": " (.(.(. v .).).) Три пары грудей.",
+	"starting_trait": true,
+	"types": [ "BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"prereqs": [ "4_BREASTS" ],
+	"leads_to": [ "M_BREASTS", "S_BREASTS" ]
+   },
+   {
+    "type": "mutation",
+    "id": "S_BREASTS",
+    "name": { "str": "S Груди S" },
+    "points": -1,
+    "visibility": 1,
+    "ugliness": 0,
+	"description": " (.  .) Маленькие груди.",
+	"starting_trait": true,
+    "purifiable": false,
+	"types": [ "SIZE_BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"changes_to": [ "M_BREASTS" ]
+	},
+   {
+    "type": "mutation",
+    "id": "M_BREASTS",
+    "name": { "str": "S Груди M" },
+    "points": 0,
+    "visibility": 2,
+    "ugliness": -2,
+	"description": " (. v .) Средние груди.",
+	"starting_trait": true,
+    "purifiable": false,
+	"types": [ "SIZE_BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"changes_to": [ "XL_BREASTS" ],
+	"prereqs": [ "S_BREASTS" ]
+	},
+	{
+    "type": "mutation",
+    "id": "XL_BREASTS",
+    "name": { "str": "S Груди XL" },
+    "points": 2,
+    "visibility": 4,
+    "ugliness": 0,
+	"description": " ( o  Y  o ) Очень Большие груди.",
+	"starting_trait": true,
+    "purifiable": false,
+	"types": [ "SIZE_BREASTS" ],
+	"category": [ "SLAANESH", "HUMAN" ],
+	"allowed_category": [ 
+	"CHIMERA",
+	"TROGLOBITE",
+	"ELFA",
+	"BEAST",
+	"LUPINE", 
+	"FELINE", 
+	"URSINE", 
+	"RAT",
+	"MOUSE"
+	],
+	"prereqs": [ "M_BREASTS" ],
+	"enchantments": [
+	  {
+	    "hit_me_effect": [
+          {
+          "id": "generic_blinding_spray_1",
+          "hit_self": false,
+          "once_in": 15,
+          "message": "Ваши сиськи распыляют молоко в глаза %2 $ s.",
+          "npc_message": "Молочные железы %1$ сбивают некоторые молоко в глаза %2$."
+          }
+        ]
+	   }
+	 ]
+	}
+]

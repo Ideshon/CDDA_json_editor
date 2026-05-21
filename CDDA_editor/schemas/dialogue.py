@@ -28,6 +28,11 @@ TALK_TOPIC_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Ответы при повторном входе в тему.",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

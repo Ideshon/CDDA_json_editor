@@ -120,6 +120,11 @@ MUTATION_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Косметические варианты мутации. Игровая логика их почти не видит.",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {
