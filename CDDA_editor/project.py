@@ -4,7 +4,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from schemas import SCHEMAS
+try:
+    from .json_io import json_dumps_pretty, json_load_relaxed
+    from .schemas import SCHEMAS
+except ImportError:
+    from json_io import json_dumps_pretty, json_load_relaxed
+    from schemas import SCHEMAS
 
 
 @dataclass
@@ -64,6 +69,30 @@ class ModProject:
 
     def mark_dirty(self, path: Path) -> None:
         self.dirty_files.add(path)
+
+    def save_file(self, path: Path) -> Path:
+        objs = self.files.get(path)
+        if objs is None:
+            raise FileNotFoundError(f"{path}: файл не найден в проекте")
+
+        with path.open("w", encoding="utf-8") as f:
+            f.write(json_dumps_pretty(objs))
+            f.write("\n")
+
+        self.dirty_files.discard(path)
+        return path
+
+    def save_dirty_files(self) -> List[Path]:
+        written: List[Path] = []
+        for path in sorted(self.dirty_files):
+            written.append(self.save_file(path))
+        return written
+
+    def save_all_files(self) -> List[Path]:
+        written: List[Path] = []
+        for path in list(self.files.keys()):
+            written.append(self.save_file(path))
+        return written
 
     def load_from_dir(self, root_path: str) -> None:
         """Загружаем все json из папки."""
@@ -202,14 +231,3 @@ class ModProject:
         # 4) отметим файл как изменённый
         self.mark_dirty(obj.file_path)
 
-
-# "расслабленный" JSON-парсер: убирает комментарии // и /* ... */
-import json
-import re
-from typing import Any
-
-
-def json_load_relaxed(text: str) -> Any:
-    text = re.sub(r"//.*", "", text)
-    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
-    return json.loads(text)

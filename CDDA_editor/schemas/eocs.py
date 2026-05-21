@@ -53,6 +53,11 @@ EOC_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "bool",
         "help": "True: запускать и для NPC (только при global = true).",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

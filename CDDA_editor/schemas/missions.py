@@ -63,6 +63,11 @@ MISSION_FIELDS: Dict[str, Dict[str, Any]] = {
         "type": "json",
         "help": "Остальное: monster_kill, item, effects_on_condition и т.д.",
     },
+    "//": {
+        "label": "коммернатрии",
+        "type": "string",
+        "help": "комментарии к объекту.",
+    },
 }
 
 SCHEMA: Dict[str, Dict[str, Any]] = {

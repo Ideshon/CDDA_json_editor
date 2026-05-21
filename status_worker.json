@@ -1,0 +1,517 @@
+{
+  "project": {
+    "name": "CDDA JSON Mod Editor",
+    "stack": [
+      "Python 3.10+",
+      "Poetry",
+      "PyQt5",
+      "unittest",
+      "PyInstaller",
+      "Windows 10"
+    ],
+    "status": "active",
+    "latest_check": {
+      "unittest": {
+        "status": "passed",
+        "tests_passed": 7,
+        "tests_skipped": 0,
+        "warnings": 0,
+        "pyright_errors": 0,
+        "ruff_errors": 0,
+        "checked_at_utc": "2026-05-21T07:53:32Z",
+        "test_command": ".\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v"
+      },
+      "pyinstaller_build": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-21T07:53:32Z",
+        "build_command": ".\\.venv\\Scripts\\poetry.exe run pyinstaller .\\CDDA-0G_json_editor.spec",
+        "artifact": "dist/CDDA-0G_json_editor.exe",
+        "artifact_size_bytes": 35487322,
+        "notes": "PyInstaller warning file contains only standard optional/platform modules after adding CDDA_editor to spec pathex."
+      }
+    }
+  },
+  "main_goals": [
+    {
+      "priority": 0,
+      "goal": "Maintain and improve the Windows PyQt5 CDDA JSON mod editor",
+      "status": "completed"
+    }
+  ],
+  "architecture": {
+    "style": "Small PyQt5 desktop application with gradually separated parsing/project/UI modules",
+    "current_state": "working application with initial tests",
+    "layers": [
+      {
+        "name": "application package",
+        "path": "CDDA_editor/",
+        "responsibility": "Desktop application source code and package entry point."
+      },
+      {
+        "name": "project model",
+        "path": "CDDA_editor/project.py",
+        "responsibility": "Load mod JSON files, classify objects by schema, track dirty files, and create/delete mod objects."
+      },
+      {
+        "name": "json io",
+        "path": "CDDA_editor/json_io.py",
+        "responsibility": "Read and write CDDA-style JSON with comments and reference-mod compatibility."
+      },
+      {
+        "name": "ui",
+        "path": "CDDA_editor/main.py and CDDA_editor/editor.py",
+        "responsibility": "PyQt5 windows, widgets, menus, theme handling, and object editing workflow."
+      },
+      {
+        "name": "automated tests",
+        "path": "tests/",
+        "responsibility": "unittest checks for parser behavior and Slaanesh reference mod loading."
+      },
+      {
+        "name": "reference mod",
+        "path": "Slaanesh/",
+        "responsibility": "Reference CDDA mod kept in the workspace for manual checks and file comparison after editor saves."
+      }
+    ],
+    "notes": [
+      "This is a real Windows 10 PyQt5 application, not the reusable project-template skeleton.",
+      "Slaanesh is a reference mod and must not be deleted or treated as disposable build output.",
+      "build/ and dist/ may remain in the shared working folder because they are used for the ready build workflow, but generated files should not be tracked in Git.",
+      "Keep changes incremental and preserve the current script-style launch while adding package/Poetry support.",
+      "Automated tests should use the standard library where practical so the project remains easy to validate on Windows."
+    ],
+    "logging": {
+      "module": "standard library logging",
+      "adapter_path": null,
+      "log_root": null,
+      "policy": "No dedicated logging adapter exists yet; keep parse/load warnings visible and avoid adding unrelated logging infrastructure during packaging work."
+    },
+    "documentation_ref": "./README.md"
+  },
+  "development_plan": [
+    {
+      "phase": 1,
+      "name": "Stabilize existing workspace layout",
+      "status": "completed",
+      "outcomes": [
+        "Document CDDA_editor as the source package.",
+        "Document Slaanesh as the reference mod.",
+        "Add initial tests around JSON loading and reference mod parsing.",
+        "Keep build and dist available as working build outputs."
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Add Poetry and Windows developer commands",
+      "status": "completed",
+      "outcomes": [
+        "Create pyproject.toml with PyQt5 dependency.",
+        "Expose a Poetry script for launching the editor.",
+        "Document Windows 10 commands for install, run, test, and build.",
+        "Preserve direct python CDDA_editor/main.py launch compatibility."
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Protect save workflows using reference-mod copies",
+      "status": "completed",
+      "outcomes": [
+        "Test saves against temporary copies of Slaanesh.",
+        "Compare touched files without modifying the reference mod.",
+        "Cover create/delete object workflows and dirty file tracking."
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Gradually split large UI modules",
+      "status": "completed",
+      "outcomes": [
+        "Split editor.py into smaller PyQt5 widgets.",
+        "Keep parser/project behavior protected by tests.",
+        "Update PyInstaller spec after package entry point is stable."
+      ]
+    }
+  ],
+  "backlog": [
+    {
+      "priority": 100,
+      "task": "Add Poetry pyproject.toml and Windows-oriented developer commands.",
+      "status": "completed"
+    },
+    {
+      "priority": 90,
+      "task": "Make CDDA_editor importable as a package while keeping direct script launch working.",
+      "status": "completed"
+    },
+    {
+      "priority": 85,
+      "task": "Add tests for Poetry/package entry point imports.",
+      "status": "completed"
+    },
+    {
+      "priority": 80,
+      "task": "Add save workflow tests using a temporary copy of Slaanesh.",
+      "status": "completed"
+    },
+    {
+      "priority": 75,
+      "task": "Split ObjectEditorWidget helpers into smaller UI modules.",
+      "status": "completed"
+    },
+    {
+      "priority": 70,
+      "task": "Keep README.md and status_worker.json aligned with project purpose, architecture, and workflow.",
+      "status": "completed"
+    },
+    {
+      "priority": 65,
+      "task": "Remove generated workspace files from Git tracking while keeping them on disk.",
+      "status": "completed"
+    },
+    {
+      "priority": 60,
+      "task": "Verify PyInstaller build after Poetry/package/import changes.",
+      "status": "in_progress"
+    }
+  ],
+  "rules": [
+    {
+      "priority": 10000,
+      "rule": "TDD is mandatory: every behavior change starts with tests (new/updated failing test first), then implementation."
+    },
+    {
+      "priority": 9900,
+      "rule": "For TDD work, explicitly run the new or updated tests in a failing state before changing implementation code; only after observing the failure may the code be changed to make the tests pass."
+    },
+    {
+      "priority": 9500,
+      "rule": "Priority principle: higher numeric priority means stricter precedence."
+    },
+    {
+      "priority": 9000,
+      "rule": "Clean Architecture is mandatory: keep boundaries between domain, application, infrastructure, and delivery layers."
+    },
+    {
+      "priority": 8500,
+      "rule": "Before any code changes, update status_worker.json with request analysis, planned scope, and validation plan."
+    },
+    {
+      "priority": 8400,
+      "rule": "Before starting any task, read status_worker.json to refresh project context, constraints, and last known validation state."
+    },
+    {
+      "priority": 7600,
+      "rule": "Run make check after changes that can affect behavior or quality gates."
+    },
+    {
+      "priority": 7580,
+      "rule": "If automated tests require fixture or sample files, store them under ./tests/files/<test_class>/<test_name> rather than scattering them across the repository."
+    },
+    {
+      "priority": 7570,
+      "rule": "Group tests into semantically meaningful test classes so test names stay concise and behavior remains easy to scan."
+    },
+    {
+      "priority": 7550,
+      "rule": "Test output must be verbose, and make command output must expose executed checks through explicit echo messages so the run shows steps, individual test cases, and a useful result summary."
+    },
+    {
+      "priority": 7540,
+      "rule": "Use ./vendor/loggerfactory for project logging and emit level-appropriate messages in infrastructure, application orchestration, and delivery code where operational visibility is needed."
+    },
+    {
+      "priority": 7500,
+      "rule": "After tests pass successfully, review the resulting code against the current project requirements and all rules recorded in status_worker.json before considering the task complete."
+    },
+    {
+      "priority": 7400,
+      "rule": "Documentation must match program behavior after interface/flow/rule changes."
+    },
+    {
+      "priority": 7390,
+      "rule": "Project documentation must be maintained in Russian unless a separate explicit requirement defines another language for a specific document."
+    },
+    {
+      "priority": 7350,
+      "rule": "When a task is completed, set its status to completed and reduce its priority to the minimum active planning priority so unfinished work remains visually and operationally ahead of completed items."
+    },
+    {
+      "priority": 7300,
+      "rule": "After completing a task, update status_worker.json to reflect the result and synchronize README.md with the current project state when relevant."
+    },
+    {
+      "priority": 7200,
+      "rule": "After completing a task, update project documentation in ./docs/ so the detailed technical documentation stays aligned with the implemented behavior and decisions."
+    },
+    {
+      "priority": 7100,
+      "rule": "If all currently tracked tasks are completed, summarize the result and then define or clarify the next backlog of tasks before considering planning finished."
+    }
+  ],
+  "bestpractice": {
+    "tdd": {
+      "practice_1": {
+        "priority": 9500,
+        "title": "Red-Green-Refactor in small steps",
+        "practice": "Write a failing test first, implement only enough code to make it pass, then refactor while keeping the tests green.",
+        "why": "Small red-green-refactor cycles reduce risk, keep intent explicit, and prevent overbuilding beyond the currently specified behavior.",
+        "sources": [
+          "https://martinfowler.com/bliki/TestDrivenDevelopment.html"
+        ]
+      },
+      "practice_2": {
+        "priority": 9400,
+        "title": "Use tests to specify behavior, not incidental implementation",
+        "practice": "Create tests around externally visible behavior and decision rules instead of binding them tightly to internal implementation details.",
+        "why": "Behavior-focused tests remain stable during refactoring and better protect the intended business outcome.",
+        "sources": [
+          "https://martinfowler.com/articles/practical-test-pyramid.html"
+        ]
+      },
+      "practice_3": {
+        "priority": 9300,
+        "title": "Maintain a self-testing codebase",
+        "practice": "Keep the project in a state where automated tests run frequently and failures immediately block confidence in the change.",
+        "why": "Fast automated feedback is the practical foundation that makes TDD useful instead of ceremonial.",
+        "sources": [
+          "https://martinfowler.com/articles/continuousIntegration.html"
+        ]
+      },
+      "practice_4": {
+        "priority": 9200,
+        "title": "Refactor continuously under test protection",
+        "practice": "Once behavior is protected by tests, improve structure, naming, duplication, and design continuously instead of postponing refactoring.",
+        "why": "TDD is not complete at green status alone; design quality comes from the refactor step performed with test safety.",
+        "sources": [
+          "https://martinfowler.com/bliki/TestDrivenDevelopment.html"
+        ]
+      }
+    },
+    "documentations": {
+      "practice_1": {
+        "priority": 9400,
+        "title": "Docs-as-code",
+        "practice": "Keep documentation in the same workflow as code: version control, code review, and automation should apply to docs alongside implementation changes.",
+        "why": "This keeps documentation current while features are fresh and prevents docs from drifting away from the codebase.",
+        "sources": [
+          "https://www.writethedocs.org/guide/docs-as-code.html"
+        ]
+      },
+      "practice_2": {
+        "priority": 9300,
+        "title": "Document before and during implementation",
+        "practice": "Start documenting requirements, assumptions, and intended behavior before coding, then refine that documentation during implementation instead of postponing it until the end.",
+        "why": "Early documentation clarifies scope, improves decisions, and gives the team a usable first draft before code details get lost.",
+        "sources": [
+          "https://www.writethedocs.org/guide/writing/docs-principles.html"
+        ]
+      },
+      "practice_3": {
+        "priority": 9200,
+        "title": "Test documentation continuously",
+        "practice": "Run documentation checks in continuous integration and on regular commits so docs build cleanly, examples stay valid, and documentation regressions are caught early.",
+        "why": "Documentation that is not tested degrades quickly, especially examples, commands, and generated outputs.",
+        "sources": [
+          "https://www.writethedocs.org/guide/tools/testing.html",
+          "https://developers.google.com/tech-writing/two/sample-code"
+        ]
+      },
+      "practice_4": {
+        "priority": 9100,
+        "title": "Write for clarity, consistency, and explicit scope",
+        "practice": "Document the audience, scope, terminology, and structure explicitly; keep wording consistent so readers can quickly find the right meaning and action.",
+        "why": "Stable terminology and predictable structure reduce ambiguity and make technical documentation easier to scan and maintain.",
+        "sources": [
+          "https://developers.google.com/tech-writing/one/documents",
+          "https://developers.google.com/tech-writing/one/words",
+          "https://learn.microsoft.com/en-us/style-guide/developer-content/reference-documentation"
+        ]
+      },
+      "practice_5": {
+        "priority": 9000,
+        "title": "Review documentation for quality and accessibility",
+        "practice": "Treat documentation review like code review: perform peer editing, re-read drafts with fresh context, and verify that instructions and structure remain accessible and usable.",
+        "why": "A review pass catches missing context, wording issues, accessibility problems, and hidden assumptions that tests alone do not catch.",
+        "sources": [
+          "https://developers.google.com/tech-writing/two/editing",
+          "https://developers.google.com/tech-writing/accessibility/self-study/introduction",
+          "https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities"
+        ]
+      }
+    },
+    "clean_architecture": {
+      "practice_1": {
+        "priority": 9500,
+        "title": "Dependencies point inward",
+        "practice": "Outer layers may depend on inner layers, but domain and application rules must not depend on frameworks, UI, databases, or delivery details.",
+        "why": "This preserves business rules as the stable center of the system and keeps implementation details replaceable.",
+        "sources": [
+          "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures",
+          "https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html"
+        ]
+      },
+      "practice_2": {
+        "priority": 9400,
+        "title": "Separate policies from details",
+        "practice": "Keep business decisions and use cases in core layers, while infrastructure, persistence, transport, and tooling remain adapters around them.",
+        "why": "This makes the system easier to test, evolve, and port without rewriting domain logic for each technical detail.",
+        "sources": [
+          "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures",
+          "https://blog.cleancoder.com/uncle-bob/2011/11/22/Clean-Architecture.html"
+        ]
+      },
+      "practice_3": {
+        "priority": 9300,
+        "title": "Define interfaces at the boundary of the core",
+        "practice": "Express persistence and external integration needs as interfaces owned by the core or application layer, with concrete adapters implemented outside.",
+        "why": "Boundary interfaces allow the core to control collaboration contracts while keeping external technologies replaceable.",
+        "sources": [
+          "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures"
+        ]
+      },
+      "practice_4": {
+        "priority": 9200,
+        "title": "Test the core without infrastructure",
+        "practice": "Design domain and application code so core use cases can be tested without real databases, web layers, or framework bootstrapping.",
+        "why": "If the core needs infrastructure to be tested, the architecture boundaries are already too weak.",
+        "sources": [
+          "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures",
+          "https://martinfowler.com/bliki/PresentationDomainDataLayering.html"
+        ]
+      }
+    }
+  },
+  "request_analysis": {
+    "updated_at_utc": "2026-05-21T07:53:32Z",
+    "request": "Verify the PyInstaller build after the package/import/layout changes.",
+    "analysis": [
+      "The current PyInstaller spec uses CDDA_editor\\main.py as the script entry point.",
+      "The application now supports both package imports and script-style imports, so the existing spec should remain viable.",
+      "build/ and dist/ are ignored and untracked, but they remain in the workspace as working build outputs.",
+      "Running PyInstaller will update ignored build artifacts on disk."
+    ],
+    "planned_scope": [
+      "Run PyInstaller through the local Poetry environment.",
+      "Verify dist/CDDA-0G_json_editor.exe exists after the build.",
+      "Inspect the PyInstaller warning file for unresolved project imports.",
+      "Run the test suite after the build.",
+      "Update status_worker.json with the build result."
+    ],
+    "validation_plan": [
+      "Run .\\.venv\\Scripts\\poetry.exe check.",
+      "Run .\\.venv\\Scripts\\poetry.exe run pyinstaller .\\CDDA-0G_json_editor.spec.",
+      "Run .\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v.",
+      "Check dist/CDDA-0G_json_editor.exe exists.",
+      "Inspect build/CDDA-0G_json_editor/warn-CDDA-0G_json_editor.txt.",
+      "Validate status_worker.json."
+    ],
+    "execution_result": "completed: PyInstaller build succeeds through Poetry, dist/CDDA-0G_json_editor.exe was regenerated, and the spec now includes CDDA_editor in pathex so project fallback imports are resolved during analysis."
+  },
+  "recommended_next_action": {
+    "type": "maintenance",
+    "target": "Windows helper validation",
+    "intent": "Verify the new tasks.cmd / tasks.ps1 entry point from the Windows workflow and PyCharm."
+  },
+  "change_based_make_validation": [
+    {
+      "when_changed": [
+        "CDDA_editor/**",
+        "tests/**",
+        "scripts/**",
+        "tasks.cmd",
+        "tasks.ps1",
+        "PYCHARM.md",
+        "pyproject.toml",
+        "poetry.lock",
+        "requirements.txt"
+      ],
+      "run": [
+        "python -m unittest discover -s tests -v",
+        ".\\.venv\\Scripts\\python.exe -m unittest discover -s tests -v"
+      ],
+      "why": "Can affect runtime behavior, dependencies, tests, or quality gates."
+    },
+    {
+      "when_changed": [
+        "status_worker.json",
+        "README.md",
+        "PYCHARM.md",
+        "docs/**"
+      ],
+      "run": [
+        "python -m json.tool status_worker.json"
+      ],
+      "why": "Status or documentation-only changes."
+    }
+  ],
+  "test_file_statuses": {
+    "last_updated_utc": "2026-05-21T07:53:32Z",
+    "update_rule": "Refresh after each full unittest run.",
+    "source": {
+      "pytest_junitxml": "",
+      "pytest_command": "",
+      "unittest_command": ".\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v"
+    },
+    "summary": {
+      "files_total": 3,
+      "files_passed": 3,
+      "files_failed": 0,
+      "files_error": 0,
+      "files_skipped": 0,
+      "files_mixed": 0
+    },
+    "files": [
+      {
+        "path": "tests/test_project_loading.py",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "path": "tests/test_package_entrypoint.py",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "path": "tests/test_project_saving.py",
+        "status": "passed",
+        "tests": 3
+      }
+    ]
+  },
+  "priority_ranges": {
+    "main_goals": {
+      "min": -100000,
+      "max": 100000
+    },
+    "backlog": {
+      "min": -100000,
+      "max": 100000
+    },
+    "rules": {
+      "min": -100000,
+      "max": 100000
+    },
+    "bestpractice.tdd": {
+      "min": -100000,
+      "max": 100000
+    },
+    "bestpractice.documentations": {
+      "min": -100000,
+      "max": 100000
+    },
+    "bestpractice.clean_architecture": {
+      "min": -100000,
+      "max": 100000
+    }
+  },
+  "documentation_refs": {
+    "architecture": "./docs/architecture.md",
+    "development_plan": "./docs/development-plan.md",
+    "backlog": "./docs/backlog.md",
+    "workflow": "./docs/workflow.md",
+    "logging": "./docs/loggerfactory.md",
+    "data_model": "./docs/data-model.md"
+  },
+  "development_plan_documentation_ref": "./docs/development-plan.md",
+  "backlog_documentation_ref": "./docs/backlog.md"
+}

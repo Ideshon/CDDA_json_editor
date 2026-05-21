@@ -1,8 +1,6 @@
 # main.py
 from __future__ import annotations
-from typing import Optional, List
-
-from pathlib import Path
+from typing import Optional
 
 from PyQt5.QtWidgets import (
     QApplication,
@@ -17,9 +15,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor
 
-from project import ModProject, ModObject
-from editor import ObjectEditorWidget, json_dumps_pretty
-from schemas import SCHEMAS
+try:
+    from .project import ModProject, ModObject
+    from .editor import ObjectEditorWidget
+    from .schemas import SCHEMAS
+except ImportError:
+    from project import ModProject, ModObject
+    from editor import ObjectEditorWidget
+    from schemas import SCHEMAS
 
 
 # --------- ТЁМНАЯ/СВЕТЛАЯ ТЕМЫ --------- #
@@ -74,7 +77,7 @@ def set_light_palette(app: QApplication, original: Optional[QPalette] = None) ->
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("CDDA 0.G JSON редактор модов")
+        self.setWindowTitle("CDDA 0.G JSON редактор")
         self.resize(1300, 800)
 
         self.project = ModProject()
@@ -100,22 +103,22 @@ class MainWindow(QMainWindow):
         self._create_actions()
 
     def _create_actions(self) -> None:
-        open_dir_act = QAction("Открыть папку мода", self)
+        open_dir_act = QAction("Открыть папку", self)
         open_dir_act.triggered.connect(self._open_mod_folder)
 
-        open_file_act = QAction("Открыть JSON-файл…", self)
+        open_file_act = QAction("Открыть JSON", self)
         open_file_act.triggered.connect(self._open_mod_file)
 
-        save_all_act = QAction("Сохранить все файлы", self)
+        save_all_act = QAction("Сохранить все", self)
         save_all_act.triggered.connect(self._save_all)
 
-        save_dirty_act = QAction("Сохранить изменённые файлы", self)
+        save_dirty_act = QAction("Сохранить изменённые", self)
         save_dirty_act.triggered.connect(self._save_dirty)
 
-        save_current_act = QAction("Сохранить файл текущего объекта", self)
+        save_current_act = QAction("Сохранить файл объекта", self)
         save_current_act.triggered.connect(self._save_current_file)
 
-        dark_theme_act = QAction("Темная тема", self)
+        dark_theme_act = QAction("Темная", self)
         dark_theme_act.setCheckable(True)
         dark_theme_act.setChecked(True)
         dark_theme_act.triggered.connect(self._toggle_dark_theme)
@@ -144,17 +147,17 @@ class MainWindow(QMainWindow):
         object_menu.addAction(add_obj_act)
         object_menu.addAction(del_obj_act)
 
-        toolbar = self.addToolBar("Основное")
+        toolbar = self.addToolBar("Файл")
         toolbar.addAction(open_dir_act)
         toolbar.addAction(open_file_act)
         toolbar.addSeparator()
         toolbar.addAction(save_all_act)
         toolbar.addAction(save_dirty_act)
         toolbar.addAction(save_current_act)
-        toolbar.addSeparator()
+        toolbar = self.addToolBar("Объект")
         toolbar.addAction(add_obj_act)
         toolbar.addAction(del_obj_act)
-        toolbar.addSeparator()
+        toolbar = self.addToolBar("Вид")
         toolbar.addAction(dark_theme_act)
 
     # ---------- тёмная тема ----------
@@ -330,37 +333,16 @@ class MainWindow(QMainWindow):
 
     # ---------- сохранение ----------
 
-    def _write_file(self, path: Path) -> Optional[str]:
-        objs = self.project.files.get(path)
-        if objs is None:
-            return f"{path}: файл не найден в проекте"
-        try:
-            with path.open("w", encoding="utf-8") as f:
-                f.write(json_dumps_pretty(objs))
-                f.write("\n")
-            return None
-        except Exception as e:
-            return f"{path}: {e}"
-
     def _save_all(self) -> None:
         self.editor.apply_changes()
 
-        errors: List[str] = []
-        written: set[Path] = set()
-        for path in self.project.files.keys():
-            err = self._write_file(path)
-            if err:
-                errors.append(err)
-            else:
-                written.add(path)
-
-        self.project.dirty_files -= written
-
-        if errors:
+        try:
+            self.project.save_all_files()
+        except Exception as e:
             QMessageBox.critical(
                 self,
-                "Ошибки при сохранении",
-                "Не удалось сохранить некоторые файлы:\n\n" + "\n".join(errors),
+                "Ошибка при сохранении",
+                f"Не удалось сохранить файлы:\n\n{e}",
             )
         else:
             QMessageBox.information(self, "Готово", "Все файлы сохранены.")
@@ -372,22 +354,13 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Сохранение", "Нет изменённых файлов.")
             return
 
-        errors: List[str] = []
-        written: set[Path] = set()
-        for path in sorted(self.project.dirty_files):
-            err = self._write_file(path)
-            if err:
-                errors.append(err)
-            else:
-                written.add(path)
-
-        self.project.dirty_files -= written
-
-        if errors:
+        try:
+            self.project.save_dirty_files()
+        except Exception as e:
             QMessageBox.critical(
                 self,
-                "Ошибки при сохранении",
-                "Не удалось сохранить некоторые файлы:\n\n" + "\n".join(errors),
+                "Ошибка при сохранении",
+                f"Не удалось сохранить изменённые файлы:\n\n{e}",
             )
         else:
             QMessageBox.information(self, "Готово", "Все изменённые файлы сохранены.")
@@ -405,12 +378,11 @@ class MainWindow(QMainWindow):
             return
 
         path = obj.file_path
-        err = self._write_file(path)
-        if err:
-            QMessageBox.critical(self, "Ошибка сохранения", err)
+        try:
+            self.project.save_file(path)
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка сохранения", str(e))
         else:
-            if path in self.project.dirty_files:
-                self.project.dirty_files.remove(path)
             QMessageBox.information(self, "Готово", f"Файл {path} сохранён.")
 
 
