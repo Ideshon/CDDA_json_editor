@@ -409,8 +409,8 @@
   },
   "recommended_next_action": {
     "type": "maintenance",
-    "target": "Commit/index review",
-    "intent": "Review staged generated-file removals separately from source changes before committing."
+    "target": "Windows helper validation",
+    "intent": "Verify the new tasks.cmd / tasks.ps1 entry point from the Windows workflow and PyCharm."
   },
   "change_based_make_validation": [
     {
@@ -418,6 +418,9 @@
         "CDDA_editor/**",
         "tests/**",
         "scripts/**",
+        "tasks.cmd",
+        "tasks.ps1",
+        "PYCHARM.md",
         "pyproject.toml",
         "poetry.lock",
         "requirements.txt"
@@ -432,6 +435,7 @@
       "when_changed": [
         "status_worker.json",
         "README.md",
+        "PYCHARM.md",
         "docs/**"
       ],
       "run": [
