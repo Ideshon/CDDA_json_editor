@@ -1,0 +1,17 @@
+.venv/
+.idea/
+__pycache__/
+*.py[cod]
+*$py.class
+
+build/
+dist/
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+
+*.log
+*.tmp
+*.bak

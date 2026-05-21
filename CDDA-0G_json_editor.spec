@@ -3,7 +3,7 @@
 
 a = Analysis(
     ['CDDA_editor\\main.py'],
-    pathex=[],
+    pathex=['CDDA_editor'],
     binaries=[],
     datas=[],
     hiddenimports=[],

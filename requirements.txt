@@ -1,1 +1,1 @@
-PyQt5
+# Dependencies are managed by Poetry in pyproject.toml.
