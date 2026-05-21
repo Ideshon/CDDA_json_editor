@@ -1,5 +1,6 @@
 .venv/
 .idea/
+Slaanesh/
 __pycache__/
 *.py[cod]
 *$py.class
