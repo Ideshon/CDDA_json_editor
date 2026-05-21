@@ -1,0 +1,36 @@
+[project]
+name = "cdda-mod-editor"
+version = "0.1.0"
+description = "Windows PyQt5 editor for Cataclysm: Dark Days Ahead JSON mods."
+authors = [{ name = "Local workspace" }]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "PyQt5>=5.15.11,<6.0.0",
+  "PyQt5-Qt5==5.15.2",
+]
+
+[project.scripts]
+cdda-mod-editor = "CDDA_editor.main:main"
+
+[tool.poetry]
+packages = [{ include = "CDDA_editor" }]
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.cdda_mod_editor.commands.windows]
+install = "poetry install"
+install_local = ".\\.venv\\Scripts\\poetry.exe install"
+run = "poetry run cdda-mod-editor"
+run_local = ".\\.venv\\Scripts\\poetry.exe run cdda-mod-editor"
+test = "poetry run python -m unittest discover -s tests -v"
+test_local = ".\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v"
+run_without_poetry = ".\\.venv\\Scripts\\python.exe .\\CDDA_editor\\main.py"
+test_without_poetry = ".\\.venv\\Scripts\\python.exe -m unittest discover -s tests -v"
+build_exe = "poetry run pyinstaller .\\CDDA-0G_json_editor.spec"
+build_exe_local = ".\\.venv\\Scripts\\poetry.exe run pyinstaller .\\CDDA-0G_json_editor.spec"
