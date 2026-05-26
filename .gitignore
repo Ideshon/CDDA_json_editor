@@ -16,3 +16,6 @@ dist/
 *.log
 *.tmp
 *.bak
+logs/
+settings.ini
+.cdda_mod_editor_backups

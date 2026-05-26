@@ -10,12 +10,16 @@ Set-StrictMode -Version Latest
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
-$LocalPoetry = Join-Path $Root '.venv\Scripts\poetry.exe'
-if (Test-Path $LocalPoetry) {
-    $Poetry = $LocalPoetry
+$LocalPython = Join-Path $Root '.venv\Scripts\python.exe'
+if (Test-Path $LocalPython) {
+    $PythonExecutable = $LocalPython
+    $PoetryExecutable = $LocalPython
+    $PoetryBaseArguments = @('-m', 'poetry')
 }
 else {
-    $Poetry = 'poetry'
+    $PythonExecutable = $null
+    $PoetryExecutable = 'poetry'
+    $PoetryBaseArguments = @()
 }
 
 function Invoke-Poetry {
@@ -24,10 +28,50 @@ function Invoke-Poetry {
         [string[]]$Arguments
     )
 
-    & $Poetry @Arguments
+    $CommandArguments = @()
+    $CommandArguments += $PoetryBaseArguments
+    $CommandArguments += $Arguments
+
+    & $PoetryExecutable @CommandArguments
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
+}
+
+function Invoke-ProjectPython {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Arguments
+    )
+
+    if ($null -ne $PythonExecutable) {
+        & $PythonExecutable @Arguments
+    }
+    else {
+        Invoke-Poetry -Arguments (@('run', 'python') + $Arguments)
+        return
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
+
+function Get-TaskArgumentOverride {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$EnvironmentVariableName,
+
+        [Parameter(Mandatory = $true)]
+        [string[]]$DefaultArguments
+    )
+
+    $Override = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
+    if ([string]::IsNullOrWhiteSpace($Override)) {
+        return $DefaultArguments
+    }
+
+    return @($Override -split '\s+' | Where-Object { $_ })
 }
 
 switch ($Task) {
@@ -35,13 +79,19 @@ switch ($Task) {
         Invoke-Poetry -Arguments @('install')
     }
     'run' {
-        Invoke-Poetry -Arguments @('run', 'cdda-mod-editor')
+        Invoke-ProjectPython -Arguments @('-m', 'CDDA_editor.main')
     }
     'test' {
-        Invoke-Poetry -Arguments @('run', 'python', '-m', 'unittest', 'discover', '-s', 'tests', '-v')
+        $TestArguments = Get-TaskArgumentOverride `
+            -EnvironmentVariableName 'CDDA_TASKS_TEST_ARGS' `
+            -DefaultArguments @('discover', '-s', 'tests', '-v')
+        Invoke-ProjectPython -Arguments (@('-m', 'unittest') + $TestArguments)
     }
     'build' {
-        Invoke-Poetry -Arguments @('run', 'pyinstaller', '.\CDDA-0G_json_editor.spec')
+        $BuildArguments = Get-TaskArgumentOverride `
+            -EnvironmentVariableName 'CDDA_TASKS_BUILD_ARGS' `
+            -DefaultArguments @('.\CDDA-0G_json_editor.spec')
+        Invoke-ProjectPython -Arguments (@('-m', 'PyInstaller') + $BuildArguments)
     }
     'check' {
         Invoke-Poetry -Arguments @('check')

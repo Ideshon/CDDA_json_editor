@@ -1,5 +1,7 @@
 # main.py
 from __future__ import annotations
+import logging
+from pathlib import Path
 from typing import Optional
 
 from PyQt5.QtWidgets import (
@@ -11,18 +13,27 @@ from PyQt5.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
     QSplitter,
+    QAbstractItemView,
+    QInputDialog,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings, QTimer
 from PyQt5.QtGui import QPalette, QColor
 
 try:
+    from .app_logging import configure_app_logging
+    from .app_paths import app_base_dir as get_app_base_dir, default_settings_path
     from .project import ModProject, ModObject
     from .editor import ObjectEditorWidget
     from .schemas import SCHEMAS
 except ImportError:
+    from app_logging import configure_app_logging
+    from app_paths import app_base_dir as get_app_base_dir, default_settings_path
     from project import ModProject, ModObject
     from editor import ObjectEditorWidget
     from schemas import SCHEMAS
+
+
+logger = logging.getLogger("CDDA_editor.main")
 
 
 # --------- ТЁМНАЯ/СВЕТЛАЯ ТЕМЫ --------- #
@@ -75,12 +86,22 @@ def set_light_palette(app: QApplication, original: Optional[QPalette] = None) ->
 # --------- ГЛАВНОЕ ОКНО --------- #
 
 class MainWindow(QMainWindow):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        settings_path: Optional[Path] = None,
+        app_base_dir: Optional[Path] = None,
+    ) -> None:
         super().__init__()
         self.setWindowTitle("CDDA 0.G JSON редактор")
         self.resize(1300, 800)
+        self.app_base_dir = Path(app_base_dir) if app_base_dir is not None else get_app_base_dir()
+        self.settings = self._create_settings(settings_path)
 
         self.project = ModProject()
+        self.autobackup_enabled = True
+        self.autobackup_interval_minutes = 5
+        self.autobackup_timer = QTimer(self)
+        self.autobackup_timer.timeout.connect(self._run_autobackup)
 
         app = QApplication.instance()
         self._original_palette: Optional[QPalette] = app.palette() if app else None
@@ -90,17 +111,30 @@ class MainWindow(QMainWindow):
 
         self.tree = QTreeWidget(self)
         self.tree.setHeaderLabel("Объекты")
+        self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.tree.currentItemChanged.connect(self._on_tree_selection_changed)
 
         self.editor = ObjectEditorWidget(self.project, self)
 
         splitter = QSplitter(self)
+        splitter.setObjectName("main_splitter")
         splitter.addWidget(self.tree)
         splitter.addWidget(self.editor)
         splitter.setStretchFactor(1, 1)
+        self.main_splitter = splitter
         self.setCentralWidget(splitter)
 
         self._create_actions()
+        self._restore_window_state()
+
+    def _create_settings(self, settings_path: Optional[Path]) -> QSettings:
+        resolved_settings_path = (
+            Path(settings_path)
+            if settings_path is not None
+            else default_settings_path(self.app_base_dir)
+        )
+        resolved_settings_path.parent.mkdir(parents=True, exist_ok=True)
+        return QSettings(str(resolved_settings_path), QSettings.IniFormat)
 
     def _create_actions(self) -> None:
         open_dir_act = QAction("Открыть папку", self)
@@ -108,6 +142,18 @@ class MainWindow(QMainWindow):
 
         open_file_act = QAction("Открыть JSON", self)
         open_file_act.triggered.connect(self._open_mod_file)
+
+        restore_backup_act = QAction("Восстановить бэкап...", self)
+        restore_backup_act.triggered.connect(self._restore_latest_backup)
+
+        autobackup_act = QAction("Автобэкап", self)
+        autobackup_act.setCheckable(True)
+        autobackup_act.setChecked(self.autobackup_enabled)
+        autobackup_act.triggered.connect(self._toggle_autobackup)
+        self._autobackup_act = autobackup_act
+
+        autobackup_interval_act = QAction("Интервал автобэкапа...", self)
+        autobackup_interval_act.triggered.connect(self._change_autobackup_interval)
 
         save_all_act = QAction("Сохранить все", self)
         save_all_act.triggered.connect(self._save_all)
@@ -131,10 +177,19 @@ class MainWindow(QMainWindow):
         del_obj_act = QAction("Удалить объект", self)
         del_obj_act.triggered.connect(self._delete_object)
 
+        move_obj_act = QAction("Переместить в файл...", self)
+        move_obj_act.triggered.connect(self._move_selected_objects)
+
+        rename_obj_act = QAction("Переименовать объект...", self)
+        rename_obj_act.triggered.connect(self._rename_selected_object)
+
         menubar = self.menuBar()
         file_menu = menubar.addMenu("Файл")
         file_menu.addAction(open_dir_act)
         file_menu.addAction(open_file_act)
+        file_menu.addAction(restore_backup_act)
+        file_menu.addAction(autobackup_act)
+        file_menu.addAction(autobackup_interval_act)
         file_menu.addSeparator()
         file_menu.addAction(save_all_act)
         file_menu.addAction(save_dirty_act)
@@ -146,19 +201,82 @@ class MainWindow(QMainWindow):
         object_menu = menubar.addMenu("Объект")
         object_menu.addAction(add_obj_act)
         object_menu.addAction(del_obj_act)
+        object_menu.addAction(move_obj_act)
+        object_menu.addAction(rename_obj_act)
 
         toolbar = self.addToolBar("Файл")
+        toolbar.setObjectName("toolbar_file")
         toolbar.addAction(open_dir_act)
         toolbar.addAction(open_file_act)
+        toolbar.addAction(restore_backup_act)
+        toolbar.addAction(autobackup_act)
         toolbar.addSeparator()
         toolbar.addAction(save_all_act)
         toolbar.addAction(save_dirty_act)
         toolbar.addAction(save_current_act)
+
         toolbar = self.addToolBar("Объект")
+        toolbar.setObjectName("toolbar_object")
         toolbar.addAction(add_obj_act)
         toolbar.addAction(del_obj_act)
+        toolbar.addAction(move_obj_act)
+        toolbar.addAction(rename_obj_act)
+
         toolbar = self.addToolBar("Вид")
+        toolbar.setObjectName("toolbar_view")
         toolbar.addAction(dark_theme_act)
+
+    def _save_window_state(self) -> None:
+        self.settings.setValue("window/width", self.size().width())
+        self.settings.setValue("window/height", self.size().height())
+        self.settings.setValue("window/state", self.saveState())
+        self.settings.setValue(
+            "window/splitter_sizes",
+            ",".join(str(size) for size in self.main_splitter.sizes()),
+        )
+        self.settings.sync()
+        logger.info("Window state saved")
+
+    def _restore_window_state(self) -> None:
+        width = self._settings_int("window/width")
+        height = self._settings_int("window/height")
+        if width and height:
+            self.resize(width, height)
+
+        state = self.settings.value("window/state")
+        if state:
+            self.restoreState(state)
+
+        splitter_sizes = self._settings_int_list("window/splitter_sizes")
+        if splitter_sizes:
+            self.main_splitter.setSizes(splitter_sizes)
+
+    def _settings_int(self, key: str) -> int:
+        value = self.settings.value(key, 0)
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return 0
+
+    def _settings_int_list(self, key: str) -> list[int]:
+        value = self.settings.value(key, "")
+        if not value:
+            return []
+        if isinstance(value, (list, tuple)):
+            raw_items = value
+        else:
+            raw_items = str(value).split(",")
+        result: list[int] = []
+        for item in raw_items:
+            try:
+                result.append(int(item))
+            except (TypeError, ValueError):
+                return []
+        return result
+
+    def closeEvent(self, event) -> None:  # type: ignore[no-untyped-def]
+        self._save_window_state()
+        super().closeEvent(event)
 
     # ---------- тёмная тема ----------
 
@@ -194,13 +312,24 @@ class MainWindow(QMainWindow):
         path = QFileDialog.getExistingDirectory(self, "Выберите папку мода")
         if not path:
             return
+        self._load_mod_folder_from_path(path)
+
+    def _load_mod_folder_from_path(self, path: str) -> bool:
         try:
+            backup = self.project.create_open_backup(Path(path))
+            logger.info("Created open backup for mod folder %s at %s", path, backup.backup_path)
             self.project.load_from_dir(path)
+            self.project.current_backup = backup
         except Exception as e:
+            logger.exception("Failed to load mod folder %s", path)
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить мод:\n{e}")
-            return
+            return False
         self._rebuild_tree()
-        self.statusBar().showMessage(f"Загружен мод из {path}", 5000)
+        self._restart_autobackup_timer()
+        self._show_load_warnings_if_any()
+        self._show_load_status(f"Загружен мод из {path}")
+        logger.info("Loaded mod folder %s", path)
+        return True
 
     def _open_mod_file(self) -> None:
         if not self._warn_discard_changes():
@@ -214,13 +343,124 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
+        self._load_mod_file_from_path(path)
+
+    def _load_mod_file_from_path(self, path: str) -> bool:
         try:
+            backup = self.project.create_open_backup(Path(path))
+            logger.info("Created open backup for JSON file %s at %s", path, backup.backup_path)
             self.project.load_from_file(path)
+            self.project.current_backup = backup
         except Exception as e:
+            logger.exception("Failed to load JSON file %s", path)
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить файл:\n{e}")
-            return
+            return False
         self._rebuild_tree()
-        self.statusBar().showMessage(f"Загружен файл {path}", 5000)
+        self._restart_autobackup_timer()
+        self._show_load_warnings_if_any()
+        self._show_load_status(f"Загружен файл {path}")
+        logger.info("Loaded JSON file %s", path)
+        return True
+
+    def _toggle_autobackup(self, checked: bool) -> None:
+        self.autobackup_enabled = checked
+        if hasattr(self, "_autobackup_act"):
+            self._autobackup_act.setChecked(checked)
+        self._restart_autobackup_timer()
+        if checked:
+            self.statusBar().showMessage("Автобэкап включён", 5000)
+        else:
+            self.statusBar().showMessage("Автобэкап отключён", 5000)
+
+    def _change_autobackup_interval(self) -> None:
+        minutes, ok = QInputDialog.getInt(
+            self,
+            "Интервал автобэкапа",
+            "Минуты:",
+            self.autobackup_interval_minutes,
+            1,
+            240,
+            1,
+        )
+        if not ok:
+            return
+        self._set_autobackup_interval_minutes(minutes)
+
+    def _set_autobackup_interval_minutes(self, minutes: int) -> None:
+        self.autobackup_interval_minutes = max(1, int(minutes))
+        self._restart_autobackup_timer()
+        self.statusBar().showMessage(
+            f"Интервал автобэкапа: {self.autobackup_interval_minutes} мин.",
+            5000,
+        )
+
+    def _restart_autobackup_timer(self) -> None:
+        self.autobackup_timer.stop()
+        if not self.autobackup_enabled:
+            return
+        if self.project.current_backup is None:
+            return
+        self.autobackup_timer.start(self.autobackup_interval_minutes * 60 * 1000)
+
+    def _run_autobackup(self) -> None:
+        if not self.autobackup_enabled or self.project.current_backup is None:
+            return
+        self.editor.apply_changes()
+        try:
+            backup = self.project.create_autobackup()
+        except Exception as e:
+            logger.exception("Autobackup failed")
+            QMessageBox.warning(self, "Ошибка автобэкапа", str(e))
+            return
+        logger.info("Created autobackup at %s", backup.backup_path)
+        self.statusBar().showMessage(f"Создан автобэкап {backup.backup_path}", 5000)
+
+    def _restore_latest_backup(self) -> None:
+        backup = self.project.current_backup
+        if backup is None:
+            QMessageBox.information(self, "Восстановление бэкапа", "Нет текущего бэкапа.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Восстановление бэкапа",
+            "Восстановить последний бэкап?\n\n"
+            f"Источник:\n{backup.source_path}\n\n"
+            f"Бэкап:\n{backup.backup_path}\n\n"
+            "Текущие файлы будут заменены.",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            self.editor.clear_selection_without_applying()
+            restored = self.project.restore_current_backup()
+        except Exception as e:
+            logger.exception("Backup restore failed")
+            QMessageBox.critical(self, "Ошибка восстановления", str(e))
+            return
+
+        self._rebuild_tree()
+        self._show_load_warnings_if_any()
+        logger.info("Restored backup from %s", restored.backup_path)
+        self.statusBar().showMessage(f"Восстановлен бэкап {restored.backup_path}", 5000)
+
+    def _show_load_warnings_if_any(self) -> None:
+        summary = self.project.load_warning_summary()
+        if not summary:
+            return
+
+        QMessageBox.warning(
+            self,
+            "Предупреждения загрузки",
+            summary,
+        )
+
+    def _show_load_status(self, message: str) -> None:
+        if self.project.load_warnings:
+            message = f"{message}; предупреждений: {len(self.project.load_warnings)}"
+        self.statusBar().showMessage(message, 5000)
 
     # ---------- дерево ----------
 
@@ -282,6 +522,31 @@ class MainWindow(QMainWindow):
                     self.tree.setCurrentItem(item)
                     return
 
+    def _selected_objects(self) -> list[ModObject]:
+        selected: list[ModObject] = []
+        seen: set[int] = set()
+
+        for item in self.tree.selectedItems():
+            data = item.data(0, Qt.UserRole)
+            if not isinstance(data, ModObject):
+                continue
+            marker = id(data)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            selected.append(data)
+
+        if selected:
+            return selected
+
+        item = self.tree.currentItem()
+        if item is None:
+            return []
+        data = item.data(0, Qt.UserRole)
+        if isinstance(data, ModObject):
+            return [data]
+        return []
+
     # ---------- создание / удаление объектов ----------
 
     def _add_object(self) -> None:
@@ -331,6 +596,144 @@ class MainWindow(QMainWindow):
         self._rebuild_tree()
         self.statusBar().showMessage("Объект удалён", 5000)
 
+    def _move_selected_objects(self) -> None:
+        self.editor.apply_changes()
+
+        objects = self._selected_objects()
+        if not objects:
+            QMessageBox.information(
+                self,
+                "Перемещение объектов",
+                "Сначала выбери один или несколько объектов в списке.",
+            )
+            return
+
+        start_dir = str(self.project.root) if self.project.root is not None else ""
+        target, _ = QFileDialog.getSaveFileName(
+            self,
+            "Выберите JSON-файл для перемещения",
+            start_dir,
+            "JSON файлы (*.json);;Все файлы (*.*)",
+        )
+        if not target:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Подтверждение перемещения",
+            f"Переместить объектов: {len(objects)}\nв файл:\n{target}?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            moved = self.project.move_objects_to_file(objects, Path(target))
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка перемещения", str(e))
+            return
+
+        self.editor.set_object(None)
+        self._rebuild_tree()
+        if moved:
+            self._select_object_in_tree(moved[0])
+        self.statusBar().showMessage(f"Перемещено объектов: {len(moved)}", 5000)
+
+    def _rename_warning_text(self, obj: ModObject) -> str:
+        incoming = self.project.incoming_references_for(obj)
+        lines = [
+            f"Переименовать объект {obj.json_type}/{obj.get_id()}?",
+            f"Входящих ссылок: {len(incoming)}",
+        ]
+
+        for reference in incoming[:10]:
+            lines.append(
+                f"- {reference.source.json_type}/{reference.source.get_id()} "
+                f"({reference.field_name})"
+            )
+
+        hidden_count = len(incoming) - 10
+        if hidden_count > 0:
+            lines.append(f"- ... ещё {hidden_count}")
+
+        if incoming:
+            lines.extend(
+                [
+                    "",
+                    "Yes: переименовать и обновить найденные ref_list ссылки.",
+                    "No: переименовать только объект.",
+                    "Cancel: отменить.",
+                ]
+            )
+        else:
+            lines.extend(["", "Ссылки на этот объект в текущем индексе не найдены."])
+
+        return "\n".join(lines)
+
+    def _rename_selected_object(self) -> None:
+        self.editor.apply_changes()
+
+        objects = self._selected_objects()
+        if len(objects) != 1:
+            QMessageBox.information(
+                self,
+                "Переименование объекта",
+                "Выбери ровно один объект для переименования.",
+            )
+            return
+
+        obj = objects[0]
+        old_id = obj.get_id()
+        new_id, ok = QInputDialog.getText(
+            self,
+            "Переименование объекта",
+            "Новый id:",
+            text=old_id,
+        )
+        if not ok:
+            return
+
+        incoming_count = len(self.project.incoming_references_for(obj))
+        update_references = False
+        if incoming_count:
+            reply = QMessageBox.question(
+                self,
+                "Ссылки на объект",
+                self._rename_warning_text(obj),
+                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+            )
+            if reply == QMessageBox.Cancel:
+                return
+            update_references = reply == QMessageBox.Yes
+        else:
+            reply = QMessageBox.question(
+                self,
+                "Подтверждение переименования",
+                self._rename_warning_text(obj),
+                QMessageBox.Yes | QMessageBox.No,
+            )
+            if reply != QMessageBox.Yes:
+                return
+
+        try:
+            result = self.project.rename_object(
+                obj,
+                new_id,
+                update_references=update_references,
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка переименования", str(e))
+            return
+
+        self.editor.clear_selection_without_applying()
+        self._rebuild_tree()
+        self._select_object_in_tree(obj)
+        self.editor.set_object(obj)
+        self.statusBar().showMessage(
+            f"Переименовано {result.old_id} -> {result.new_id}; ссылок обновлено: {result.updated_references}",
+            5000,
+        )
+
     # ---------- сохранение ----------
 
     def _save_all(self) -> None:
@@ -339,12 +742,14 @@ class MainWindow(QMainWindow):
         try:
             self.project.save_all_files()
         except Exception as e:
+            logger.exception("Failed to save all files")
             QMessageBox.critical(
                 self,
                 "Ошибка при сохранении",
                 f"Не удалось сохранить файлы:\n\n{e}",
             )
         else:
+            logger.info("Saved all files")
             QMessageBox.information(self, "Готово", "Все файлы сохранены.")
 
     def _save_dirty(self) -> None:
@@ -357,12 +762,14 @@ class MainWindow(QMainWindow):
         try:
             self.project.save_dirty_files()
         except Exception as e:
+            logger.exception("Failed to save dirty files")
             QMessageBox.critical(
                 self,
                 "Ошибка при сохранении",
                 f"Не удалось сохранить изменённые файлы:\n\n{e}",
             )
         else:
+            logger.info("Saved dirty files")
             QMessageBox.information(self, "Готово", "Все изменённые файлы сохранены.")
 
     def _save_current_file(self) -> None:
@@ -381,16 +788,21 @@ class MainWindow(QMainWindow):
         try:
             self.project.save_file(path)
         except Exception as e:
+            logger.exception("Failed to save current file %s", path)
             QMessageBox.critical(self, "Ошибка сохранения", str(e))
         else:
+            logger.info("Saved current file %s", path)
             QMessageBox.information(self, "Готово", f"Файл {path} сохранён.")
 
 
 def main() -> None:
     import sys
 
+    base_dir = get_app_base_dir()
+    configure_app_logging(base_dir=base_dir)
+    logger.info("Starting CDDA JSON Mod Editor")
     app = QApplication(sys.argv)
-    w = MainWindow()
+    w = MainWindow(app_base_dir=base_dir)
     w.show()
     sys.exit(app.exec_())
 

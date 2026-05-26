@@ -44,6 +44,7 @@ class ObjectEditorWidget(QWidget):
         self.fields_meta: Dict[str, Dict[str, Any]] = {}
 
         self.header_label = QLabel("Ничего не выбрано", self)
+        self.file_label = QLabel("Файл: -", self)
 
         self.add_combo = QComboBox(self)
         self.add_combo.setEditable(False)
@@ -68,6 +69,7 @@ class ObjectEditorWidget(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.header_label)
+        layout.addWidget(self.file_label)
         layout.addLayout(controls)
         layout.addWidget(scroll)
         self.setLayout(layout)
@@ -81,18 +83,28 @@ class ObjectEditorWidget(QWidget):
         self.fields_meta.clear()
         self._clear_add_combo()
 
+    def clear_selection_without_applying(self) -> None:
+        self.current_obj = None
+        self.current_schema = None
+        self.header_label.setText("Ничего не выбрано")
+        self.file_label.setText("Файл: -")
+        self.clear_form()
+
     def _clear_add_combo(self) -> None:
         self.add_combo.clear()
         self.add_combo.addItem("— выбери поле —", None)
 
     def set_object(self, obj: Optional[ModObject]) -> None:
-        # применяем изменения перед сменой объекта
-        self.apply_changes()
+        # применяем изменения только при реальной смене объекта; повторный выбор
+        # того же объекта используется для refresh после программных изменений.
+        if obj is not self.current_obj:
+            self.apply_changes()
 
         self.current_obj = obj
         if obj is None:
             self.current_schema = None
             self.header_label.setText("Ничего не выбрано")
+            self.file_label.setText("Файл: -")
             self.clear_form()
             return
 
@@ -100,6 +112,7 @@ class ObjectEditorWidget(QWidget):
         self.header_label.setText(
             f"{self.current_schema.get('label', obj.schema_key)}   (type: {obj.json_type})"
         )
+        self.file_label.setText(f"Файл: {self.project.relative_object_file(obj)}")
         self._rebuild_form()
 
     def _rebuild_form(self) -> None:
