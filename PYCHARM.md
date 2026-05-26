@@ -1,12 +1,12 @@
 # PyCharm
 
-Use `tasks.cmd` as the single Windows entry point for development actions.
+Используй `tasks.cmd` как единый Windows entry point для действий разработки.
 
-Project root:
+Корень проекта:
 
-`D:\Python\CDDA_Mod_Editor`
+`E:\python\cdda_mod_editor`
 
-Commands:
+Команды:
 
 ```powershell
 .\tasks.cmd install
@@ -16,10 +16,10 @@ Commands:
 .\tasks.cmd check
 ```
 
-Recommended PyCharm setup:
+Рекомендуемая настройка PyCharm:
 
-1. Create a Run/Debug configuration that runs `tasks.cmd` from the project root.
-2. Pass one of `run`, `test`, `build`, or `check` as the first argument.
-3. Use `run` for the GUI, `test` for `unittest`, and `build` for PyInstaller.
+1. Создай Run/Debug configuration, которая запускает `tasks.cmd` из корня проекта.
+2. Передай первым аргументом `run`, `test`, `build` или `check`.
+3. Используй `run` для GUI, `test` для `unittest`, `build` для PyInstaller, `check` для `poetry check`.
 
-If you prefer direct PowerShell execution, use `tasks.ps1` with the same task names.
+Если нужен прямой запуск через PowerShell, используй `tasks.ps1` с теми же именами задач и `-ExecutionPolicy Bypass`.

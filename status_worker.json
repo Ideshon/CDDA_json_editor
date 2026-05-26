@@ -13,29 +13,117 @@
     "latest_check": {
       "unittest": {
         "status": "passed",
-        "tests_passed": 7,
+        "tests_passed": 38,
         "tests_skipped": 0,
         "warnings": 0,
         "pyright_errors": 0,
         "ruff_errors": 0,
-        "checked_at_utc": "2026-05-21T07:53:32Z",
-        "test_command": ".\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v"
+        "checked_at_utc": "2026-05-26T20:09:40Z",
+        "test_command": ".\\tasks.cmd test"
       },
       "pyinstaller_build": {
         "status": "passed",
-        "checked_at_utc": "2026-05-21T07:53:32Z",
-        "build_command": ".\\.venv\\Scripts\\poetry.exe run pyinstaller .\\CDDA-0G_json_editor.spec",
+        "checked_at_utc": "2026-05-26T20:09:40Z",
+        "build_command": ".\\tasks.cmd build",
         "artifact": "dist/CDDA-0G_json_editor.exe",
-        "artifact_size_bytes": 35487322,
-        "notes": "PyInstaller warning file contains only standard optional/platform modules after adding CDDA_editor to spec pathex."
+        "artifact_size_bytes": 35497280,
+        "notes": "PyInstaller warning file contains only standard optional/platform modules and no unresolved project imports."
+      },
+      "phase_4_ui_state_and_logging": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T20:09:40Z",
+        "notes": "MainWindow persists window size, toolbar layout, and splitter sizes to application-local settings.ini; application logging writes to console and application-local logs/editor.log."
+      },
+      "local_program_files_manual": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-26T20:19:15Z",
+        "notes": "User confirmed the application works after moving default logs to logs/editor.log and default UI state to settings.ini beside the program."
+      },
+      "handoff_before_shutdown": {
+        "status": "recorded",
+        "checked_at_utc": "2026-05-26T20:19:15Z",
+        "notes": "Resume with Phase 4 undo/redo. Read status_worker.json first, keep existing uncommitted work, do not delete reference/generated files, and use TDD before behavior changes."
+      },
+      "phase_4_autobackup": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T19:40:17Z",
+        "notes": "Runtime autobackup is enabled by default, can be disabled, has a configurable interval, and writes unsaved in-memory project data to backup snapshots without touching working JSON files."
+      },
+      "phase_4_backup_restore": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T19:27:39Z",
+        "notes": "Opening a mod folder or single JSON file now creates a .cdda_mod_editor_backups snapshot, and the UI exposes a restore command for the latest backup with confirmation."
+      },
+      "phase_3_object_renaming": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T18:34:35Z",
+        "notes": "Objects can be renamed with duplicate-id protection, optional ref_list reference updates, a UI warning for incoming references, and a regression test for the real menu path where tree rebuild previously restored the old id."
+      },
+      "planning_update": {
+        "status": "updated",
+        "checked_at_utc": "2026-05-26T18:54:29Z",
+        "notes": "Inserted a data-safety phase before the object relationship window: open-time backups and restore first, configurable autosave second, undo/redo third."
+      },
+      "phase_2_object_moving": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T17:00:08Z",
+        "notes": "Objects can be moved between JSON files in the project model, the tree supports multi-selection, and the UI exposes a move-selected-objects command."
+      },
+      "gui_move_smoke": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-26T17:24:43Z",
+        "notes": "User confirmed that object moving works in the application."
+      },
+      "phase_1_object_context": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T15:50:47Z",
+        "notes": "Selected objects show their owning file, and ModProject exposes object indexes plus first-pass ref_list relationship indexes."
+      },
+      "documentation": {
+        "status": "created",
+        "checked_at_utc": "2026-05-26T15:50:47Z",
+        "paths": [
+          "docs/architecture.md",
+          "docs/development-plan.md",
+          "docs/backlog.md",
+          "docs/workflow.md",
+          "docs/loggerfactory.md",
+          "docs/data-model.md"
+        ]
+      },
+      "windows_helper": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T14:37:01Z",
+        "commands": [
+          ".\\tasks.cmd check",
+          ".\\tasks.cmd test",
+          ".\\tasks.cmd build"
+        ],
+        "notes": "tasks.ps1 now uses the local .venv Python module entry points instead of broken Windows console-script shims. Fast smoke overrides cover test/build through CDDA_TASKS_TEST_ARGS and CDDA_TASKS_BUILD_ARGS."
+      },
+      "load_diagnostics": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T14:37:01Z",
+        "notes": "Parse/load warnings are stored in ModProject.load_warnings and shown in the GUI after loading."
+      },
+      "gui_smoke": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-26T14:24:43Z",
+        "command": ".\\tasks.cmd run",
+        "notes": "User confirmed that the application starts and works after the Windows helper fix."
+      },
+      "gui_save_smoke": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-26T14:30:42Z",
+        "notes": "User manually checked the GUI save workflow as far as practical and reported that it appears to work."
       }
     }
   },
   "main_goals": [
     {
-      "priority": 0,
-      "goal": "Maintain and improve the Windows PyQt5 CDDA JSON mod editor",
-      "status": "completed"
+      "priority": 100,
+      "goal": "Develop object navigation, refactoring, schema help, and dialogue editing workflows for the CDDA JSON mod editor",
+      "status": "active"
     }
   ],
   "architecture": {
@@ -56,6 +144,11 @@
         "name": "json io",
         "path": "CDDA_editor/json_io.py",
         "responsibility": "Read and write CDDA-style JSON with comments and reference-mod compatibility."
+      },
+      {
+        "name": "application paths",
+        "path": "CDDA_editor/app_paths.py",
+        "responsibility": "Resolve the local program folder for logs/editor.log and settings.ini in source and PyInstaller runs."
       },
       {
         "name": "ui",
@@ -81,10 +174,10 @@
       "Automated tests should use the standard library where practical so the project remains easy to validate on Windows."
     ],
     "logging": {
-      "module": "standard library logging",
-      "adapter_path": null,
-      "log_root": null,
-      "policy": "No dedicated logging adapter exists yet; keep parse/load warnings visible and avoid adding unrelated logging infrastructure during packaging work."
+        "module": "standard library logging",
+        "adapter_path": "CDDA_editor/app_logging.py",
+        "log_root": "program-folder/logs",
+        "policy": "Use configure_app_logging() for console and file logging; keep parse/load warnings visible through ModProject.load_warnings and GUI warnings."
     },
     "documentation_ref": "./README.md"
   },
@@ -130,48 +223,197 @@
         "Keep parser/project behavior protected by tests.",
         "Update PyInstaller spec after package entry point is stable."
       ]
+    },
+    {
+      "phase": 5,
+      "name": "Object identity, file context, and relationship index",
+      "status": "completed",
+      "outcomes": [
+        "Show the owning JSON file for the selected object in the editor UI.",
+        "Build an object index by type/id and file.",
+        "Build a first-pass relationship index with incoming and outgoing references between loaded objects."
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Move and rename objects",
+      "status": "completed",
+      "outcomes": [
+        "Move one object between JSON files while marking old and new files dirty. Completed.",
+        "Support multi-selection for batch moving. Completed.",
+        "Rename objects safely, first with warnings, then with dependency updates through the reference index. Completed for schema-defined ref_list references."
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Data safety, backups, autosave, and undo/redo",
+      "status": "in_progress",
+      "outcomes": [
+        "Create a mod backup automatically when opening a mod folder or JSON file. Completed.",
+        "Add an explicit restore-from-backup button or command. Completed.",
+        "Add runtime autosave/autobackup with an enable/disable setting and configurable interval. Completed.",
+        "Persist window size, toolbar layout, and splitter sizes. Completed.",
+        "Add console and file logging. Completed.",
+        "Add undo and redo buttons for editor actions."
+      ]
+    },
+    {
+      "phase": 8,
+      "name": "Object relationship window",
+      "status": "planned",
+      "outcomes": [
+        "Open a dedicated relationships window from a selected object.",
+        "Show objects that reference the selected object.",
+        "Show existing loaded objects referenced by the selected object."
+      ]
+    },
+    {
+      "phase": 9,
+      "name": "Field ordering and schema help editing",
+      "status": "planned",
+      "outcomes": [
+        "Drag fields inside an object and preserve order in saved JSON.",
+        "Audit fields found in Slaanesh against schema help.",
+        "Allow user-authored field help overrides from the application.",
+        "Allow user-authored schema/category extensions from the application."
+      ]
+    },
+    {
+      "phase": 10,
+      "name": "Dialogue editing workflow",
+      "status": "planned",
+      "outcomes": [
+        "Create a dedicated dialogue editing window inside the application first.",
+        "Represent dialogue trees and response choices across all dialogue JSON in the loaded mod.",
+        "Evaluate later whether this should become a separate dialogger-style program."
+      ]
     }
   ],
   "backlog": [
     {
-      "priority": 100,
+      "priority": -100,
       "task": "Add Poetry pyproject.toml and Windows-oriented developer commands.",
       "status": "completed"
     },
     {
-      "priority": 90,
+      "priority": -100,
       "task": "Make CDDA_editor importable as a package while keeping direct script launch working.",
       "status": "completed"
     },
     {
-      "priority": 85,
+      "priority": -100,
       "task": "Add tests for Poetry/package entry point imports.",
       "status": "completed"
     },
     {
-      "priority": 80,
+      "priority": -100,
       "task": "Add save workflow tests using a temporary copy of Slaanesh.",
       "status": "completed"
     },
     {
-      "priority": 75,
+      "priority": -100,
       "task": "Split ObjectEditorWidget helpers into smaller UI modules.",
       "status": "completed"
     },
     {
-      "priority": 70,
+      "priority": -100,
       "task": "Keep README.md and status_worker.json aligned with project purpose, architecture, and workflow.",
       "status": "completed"
     },
     {
-      "priority": 65,
+      "priority": -100,
       "task": "Remove generated workspace files from Git tracking while keeping them on disk.",
       "status": "completed"
     },
     {
-      "priority": 60,
+      "priority": -100,
       "task": "Verify PyInstaller build after Poetry/package/import changes.",
-      "status": "in_progress"
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Validate the GUI save workflow on a temporary copy of Slaanesh and compare changed files.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Create the docs/ technical documentation referenced by status_worker.json.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Add automated coverage for the Windows helper workflow beyond check, including test/build where practical.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Improve load and parse diagnostics so warnings are visible without relying only on console output.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 1: show the selected object's owning file and add object/reference indexes.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 2: move one or multiple selected objects between JSON files.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 3: rename objects, first with a dependency warning and then with reference updates.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 4: add open-time mod backups and a restore-from-backup command.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 4: add configurable runtime autosave/autobackup with an enable/disable setting.",
+      "status": "completed"
+    },
+    {
+      "priority": -100,
+      "task": "Phase 4: persist UI state and add console/file logging before undo/redo.",
+      "status": "completed"
+    },
+    {
+      "priority": 80,
+      "task": "Phase 4: add undo and redo buttons for editor actions.",
+      "status": "planned"
+    },
+    {
+      "priority": 70,
+      "task": "Phase 5: add an object relationships window with incoming and outgoing links.",
+      "status": "planned"
+    },
+    {
+      "priority": 60,
+      "task": "Phase 6: add drag-and-drop field ordering that is preserved in saved JSON.",
+      "status": "planned"
+    },
+    {
+      "priority": 50,
+      "task": "Phase 7: audit and extend schema field help from Slaanesh, then support in-app help overrides.",
+      "status": "planned"
+    },
+    {
+      "priority": 40,
+      "task": "Phase 8: support user schema/category extensions from the application.",
+      "status": "planned"
+    },
+    {
+      "priority": 30,
+      "task": "Phase 9: build a dedicated dialogue editing window before considering a separate program.",
+      "status": "planned"
+    },
+    {
+      "priority": 10,
+      "task": "Expand schema coverage for common CDDA object types based on real mod editing needs.",
+      "status": "planned"
     }
   ],
   "rules": [
@@ -217,7 +459,7 @@
     },
     {
       "priority": 7540,
-      "rule": "Use ./vendor/loggerfactory for project logging and emit level-appropriate messages in infrastructure, application orchestration, and delivery code where operational visibility is needed."
+      "rule": "Use CDDA_editor/app_logging.py for project logging and emit level-appropriate messages in infrastructure, application orchestration, and delivery code where operational visibility is needed."
     },
     {
       "priority": 7500,
@@ -382,35 +624,53 @@
     }
   },
   "request_analysis": {
-    "updated_at_utc": "2026-05-21T07:53:32Z",
-    "request": "Verify the PyInstaller build after the package/import/layout changes.",
+    "updated_at_utc": "2026-05-26T20:19:15Z",
+    "request": "User confirmed the latest change works and asked to record what is needed to continue the project before shutdown.",
     "analysis": [
-      "The current PyInstaller spec uses CDDA_editor\\main.py as the script entry point.",
-      "The application now supports both package imports and script-style imports, so the existing spec should remain viable.",
-      "build/ and dist/ are ignored and untracked, but they remain in the workspace as working build outputs.",
-      "Running PyInstaller will update ignored build artifacts on disk."
+      "The most recent local program-files change is manually confirmed working by the user.",
+      "The next active project task remains Phase 4 undo/redo buttons for editor actions.",
+      "The repository contains intentional working changes and untracked generated/reference files, so the next session must not reset or clean the tree."
     ],
     "planned_scope": [
-      "Run PyInstaller through the local Poetry environment.",
-      "Verify dist/CDDA-0G_json_editor.exe exists after the build.",
-      "Inspect the PyInstaller warning file for unresolved project imports.",
-      "Run the test suite after the build.",
-      "Update status_worker.json with the build result."
+      "Record manual confirmation of the latest change.",
+      "Record the next implementation target and validation commands for continuation.",
+      "Record cautions about existing worktree state and files that should not be touched."
     ],
     "validation_plan": [
-      "Run .\\.venv\\Scripts\\poetry.exe check.",
-      "Run .\\.venv\\Scripts\\poetry.exe run pyinstaller .\\CDDA-0G_json_editor.spec.",
-      "Run .\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v.",
-      "Check dist/CDDA-0G_json_editor.exe exists.",
-      "Inspect build/CDDA-0G_json_editor/warn-CDDA-0G_json_editor.txt.",
-      "Validate status_worker.json."
+      "Run python -m json.tool status_worker.json after editing status.",
+      "For the next behavior change, start with failing tests and then run .\\tasks.cmd check/test/build."
     ],
-    "execution_result": "completed: PyInstaller build succeeds through Poetry, dist/CDDA-0G_json_editor.exe was regenerated, and the spec now includes CDDA_editor in pathex so project fallback imports are resolved during analysis."
+    "execution_result": "completed: recorded manual confirmation, continuation target, validation commands, and worktree cautions for the next session."
+  },
+  "handoff": {
+    "updated_at_utc": "2026-05-26T20:19:15Z",
+    "current_state": [
+      "Application is working after localizing support files: logs/editor.log and settings.ini are stored beside the program.",
+      "Last full validation passed: .\\tasks.cmd check, .\\tasks.cmd test with 38 tests, .\\tasks.cmd build, and python -m json.tool status_worker.json.",
+      "The built executable was regenerated at dist/CDDA-0G_json_editor.exe."
+    ],
+    "resume_steps": [
+      "Read status_worker.json first and follow the project-status-check workflow.",
+      "Continue Phase 4 with undo/redo buttons for editor actions.",
+      "Start with failing tests before implementation, as required by the project rules.",
+      "After implementation, run .\\tasks.cmd check, .\\tasks.cmd test, .\\tasks.cmd build, and python -m json.tool status_worker.json."
+    ],
+    "suggested_next_scope": [
+      "Define an action-history mechanism owned outside the UI widgets, then wire menu/toolbar back-forward actions in MainWindow.",
+      "Cover create/delete/move/rename object operations first because they already have project-model tests.",
+      "Then cover editor field changes through ObjectEditorWidget.apply_changes so undo/redo protects normal object editing."
+    ],
+    "worktree_cautions": [
+      "There are many intentional uncommitted changes from previous phases; do not revert them.",
+      "Do not delete or modify Slaanesh/ unless the user explicitly asks.",
+      "Leave untracked Slaanesh.zip and .cdda_mod_editor_backups/ alone unless the user explicitly asks.",
+      "logs/ and settings.ini are local application outputs and are ignored by .gitignore."
+    ]
   },
   "recommended_next_action": {
-    "type": "maintenance",
-    "target": "Windows helper validation",
-    "intent": "Verify the new tasks.cmd / tasks.ps1 entry point from the Windows workflow and PyCharm."
+    "type": "implementation",
+    "target": "Phase 4 undo/redo",
+    "intent": "Add back/forward buttons for undoing and redoing editor actions."
   },
   "change_based_make_validation": [
     {
@@ -445,16 +705,16 @@
     }
   ],
   "test_file_statuses": {
-    "last_updated_utc": "2026-05-21T07:53:32Z",
+    "last_updated_utc": "2026-05-26T20:09:40Z",
     "update_rule": "Refresh after each full unittest run.",
     "source": {
       "pytest_junitxml": "",
       "pytest_command": "",
-      "unittest_command": ".\\.venv\\Scripts\\poetry.exe run python -m unittest discover -s tests -v"
+      "unittest_command": ".\\tasks.cmd test"
     },
     "summary": {
-      "files_total": 3,
-      "files_passed": 3,
+      "files_total": 14,
+      "files_passed": 14,
       "files_failed": 0,
       "files_error": 0,
       "files_skipped": 0,
@@ -462,9 +722,54 @@
     },
     "files": [
       {
+        "path": "tests/test_app_logging.py",
+        "status": "passed",
+        "tests": 2
+      },
+      {
         "path": "tests/test_project_loading.py",
         "status": "passed",
+        "tests": 4
+      },
+            {
+                "path": "tests/test_project_indexes.py",
+                "status": "passed",
+                "tests": 2
+      },
+      {
+        "path": "tests/test_project_moving.py",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "path": "tests/test_editor_context.py",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "path": "tests/test_main_window_backups.py",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "path": "tests/test_main_window_moving.py",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "path": "tests/test_project_renaming.py",
+        "status": "passed",
         "tests": 3
+      },
+      {
+        "path": "tests/test_main_window_renaming.py",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "path": "tests/test_main_window_state.py",
+        "status": "passed",
+        "tests": 2
       },
       {
         "path": "tests/test_package_entrypoint.py",
@@ -472,7 +777,17 @@
         "tests": 1
       },
       {
+        "path": "tests/test_project_backups.py",
+        "status": "passed",
+        "tests": 4
+      },
+      {
         "path": "tests/test_project_saving.py",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "path": "tests/test_windows_tasks.py",
         "status": "passed",
         "tests": 3
       }
