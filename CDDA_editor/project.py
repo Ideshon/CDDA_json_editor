@@ -1,5 +1,6 @@
 # project.py
 from __future__ import annotations
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -84,6 +85,13 @@ class BackupInfo:
     created_at_utc: str
 
 
+@dataclass(frozen=True)
+class ProjectEditState:
+    root: Optional[Path]
+    files: Dict[Path, List[Dict[str, Any]]]
+    dirty_files: frozenset[Path]
+
+
 class ModProject:
     def __init__(self) -> None:
         self.root: Optional[Path] = None
@@ -113,6 +121,45 @@ class ModProject:
 
     def mark_dirty(self, path: Path) -> None:
         self.dirty_files.add(path)
+
+    def capture_edit_state(self) -> ProjectEditState:
+        return ProjectEditState(
+            root=self.root,
+            files=deepcopy(self.files),
+            dirty_files=frozenset(self.dirty_files),
+        )
+
+    def restore_edit_state(self, state: ProjectEditState) -> None:
+        self.root = state.root
+        self.files = deepcopy(state.files)
+        self.dirty_files = set(state.dirty_files)
+        self.objects_by_schema.clear()
+        self.ids_by_type.clear()
+        self.object_index.clear()
+        self.objects_by_file.clear()
+        self._outgoing_references.clear()
+        self._incoming_references.clear()
+
+        for path, objects in self.files.items():
+            for obj in objects:
+                if not isinstance(obj, dict):
+                    continue
+                json_type = obj.get("type")
+                if not isinstance(json_type, str):
+                    continue
+                schema_key = self._schema_for_type(json_type)
+                if not schema_key:
+                    continue
+                mod_object = ModObject(
+                    schema_key=schema_key,
+                    json_type=json_type,
+                    file_path=path,
+                    data=obj,
+                )
+                self.objects_by_schema.setdefault(schema_key, []).append(mod_object)
+                self._register_id(mod_object)
+
+        self.rebuild_indexes()
 
     def save_file(self, path: Path) -> Path:
         objs = self.files.get(path)

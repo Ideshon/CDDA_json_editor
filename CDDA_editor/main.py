@@ -2,7 +2,7 @@
 from __future__ import annotations
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from PyQt5.QtWidgets import (
     QApplication,
@@ -22,14 +22,18 @@ from PyQt5.QtGui import QPalette, QColor
 try:
     from .app_logging import configure_app_logging
     from .app_paths import app_base_dir as get_app_base_dir, default_settings_path
+    from .action_history import ProjectActionHistory
     from .project import ModProject, ModObject
     from .editor import ObjectEditorWidget
+    from .relationships import ObjectRelationshipsWindow
     from .schemas import SCHEMAS
 except ImportError:
     from app_logging import configure_app_logging
     from app_paths import app_base_dir as get_app_base_dir, default_settings_path
+    from action_history import ProjectActionHistory
     from project import ModProject, ModObject
     from editor import ObjectEditorWidget
+    from relationships import ObjectRelationshipsWindow
     from schemas import SCHEMAS
 
 
@@ -98,6 +102,8 @@ class MainWindow(QMainWindow):
         self.settings = self._create_settings(settings_path)
 
         self.project = ModProject()
+        self.action_history = ProjectActionHistory(self.project)
+        self._relationships_window: Optional[ObjectRelationshipsWindow] = None
         self.autobackup_enabled = True
         self.autobackup_interval_minutes = 5
         self.autobackup_timer = QTimer(self)
@@ -115,6 +121,7 @@ class MainWindow(QMainWindow):
         self.tree.currentItemChanged.connect(self._on_tree_selection_changed)
 
         self.editor = ObjectEditorWidget(self.project, self)
+        self.editor.change_recorder = self._record_editor_change
 
         splitter = QSplitter(self)
         splitter.setObjectName("main_splitter")
@@ -164,6 +171,16 @@ class MainWindow(QMainWindow):
         save_current_act = QAction("Сохранить файл объекта", self)
         save_current_act.triggered.connect(self._save_current_file)
 
+        undo_act = QAction("\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c", self)
+        undo_act.setShortcut("Ctrl+Z")
+        undo_act.triggered.connect(self._undo_project_action)
+        self._undo_action = undo_act
+
+        redo_act = QAction("\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u044c", self)
+        redo_act.setShortcut("Ctrl+Y")
+        redo_act.triggered.connect(self._redo_project_action)
+        self._redo_action = redo_act
+
         dark_theme_act = QAction("Темная", self)
         dark_theme_act.setCheckable(True)
         dark_theme_act.setChecked(True)
@@ -183,6 +200,9 @@ class MainWindow(QMainWindow):
         rename_obj_act = QAction("Переименовать объект...", self)
         rename_obj_act.triggered.connect(self._rename_selected_object)
 
+        relationships_act = QAction("Связи объекта...", self)
+        relationships_act.triggered.connect(self._open_relationships_window)
+
         menubar = self.menuBar()
         file_menu = menubar.addMenu("Файл")
         file_menu.addAction(open_dir_act)
@@ -198,11 +218,16 @@ class MainWindow(QMainWindow):
         view_menu = menubar.addMenu("Вид")
         view_menu.addAction(dark_theme_act)
 
+        edit_menu = menubar.addMenu("\u041f\u0440\u0430\u0432\u043a\u0430")
+        edit_menu.addAction(undo_act)
+        edit_menu.addAction(redo_act)
+
         object_menu = menubar.addMenu("Объект")
         object_menu.addAction(add_obj_act)
         object_menu.addAction(del_obj_act)
         object_menu.addAction(move_obj_act)
         object_menu.addAction(rename_obj_act)
+        object_menu.addAction(relationships_act)
 
         toolbar = self.addToolBar("Файл")
         toolbar.setObjectName("toolbar_file")
@@ -215,18 +240,68 @@ class MainWindow(QMainWindow):
         toolbar.addAction(save_dirty_act)
         toolbar.addAction(save_current_act)
 
+        toolbar = self.addToolBar("\u041f\u0440\u0430\u0432\u043a\u0430")
+        toolbar.setObjectName("toolbar_edit")
+        toolbar.addAction(undo_act)
+        toolbar.addAction(redo_act)
+
         toolbar = self.addToolBar("Объект")
         toolbar.setObjectName("toolbar_object")
         toolbar.addAction(add_obj_act)
         toolbar.addAction(del_obj_act)
         toolbar.addAction(move_obj_act)
         toolbar.addAction(rename_obj_act)
+        toolbar.addAction(relationships_act)
 
         toolbar = self.addToolBar("Вид")
         toolbar.setObjectName("toolbar_view")
         toolbar.addAction(dark_theme_act)
 
+        self._refresh_undo_redo_actions()
+
+    def _record_editor_change(self, label: str, change: Callable[[], bool]) -> bool:
+        before = self.action_history.capture()
+        changed = change()
+        if changed:
+            self._record_project_action(label, before)
+        return changed
+
+    def _record_project_action(self, label: str, before) -> bool:  # type: ignore[no-untyped-def]
+        recorded = self.action_history.record(label, before)
+        self._refresh_undo_redo_actions()
+        if recorded:
+            logger.info("Recorded project action: %s", label)
+        return recorded
+
+    def _refresh_undo_redo_actions(self) -> None:
+        if hasattr(self, "_undo_action"):
+            self._undo_action.setEnabled(self.action_history.can_undo)
+        if hasattr(self, "_redo_action"):
+            self._redo_action.setEnabled(self.action_history.can_redo)
+
+    def _undo_project_action(self) -> None:
+        if not self.action_history.can_undo:
+            return
+        self.editor.clear_selection_without_applying()
+        action = self.action_history.undo()
+        self._rebuild_tree()
+        self._refresh_undo_redo_actions()
+        logger.info("Undid project action: %s", action.label)
+        self.statusBar().showMessage(f"\u041e\u0442\u043c\u0435\u043d\u0435\u043d\u043e: {action.label}", 5000)
+
+    def _redo_project_action(self) -> None:
+        if not self.action_history.can_redo:
+            return
+        self.editor.clear_selection_without_applying()
+        action = self.action_history.redo()
+        self._rebuild_tree()
+        self._refresh_undo_redo_actions()
+        logger.info("Redid project action: %s", action.label)
+        self.statusBar().showMessage(f"\u041f\u043e\u0432\u0442\u043e\u0440\u0435\u043d\u043e: {action.label}", 5000)
+
     def _save_window_state(self) -> None:
+        if self._relationships_window is not None:
+            self._relationships_window._save_window_state()
         self.settings.setValue("window/width", self.size().width())
         self.settings.setValue("window/height", self.size().height())
         self.settings.setValue("window/state", self.saveState())
@@ -324,6 +399,8 @@ class MainWindow(QMainWindow):
             logger.exception("Failed to load mod folder %s", path)
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить мод:\n{e}")
             return False
+        self.action_history.clear()
+        self._refresh_undo_redo_actions()
         self._rebuild_tree()
         self._restart_autobackup_timer()
         self._show_load_warnings_if_any()
@@ -355,6 +432,8 @@ class MainWindow(QMainWindow):
             logger.exception("Failed to load JSON file %s", path)
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить файл:\n{e}")
             return False
+        self.action_history.clear()
+        self._refresh_undo_redo_actions()
         self._rebuild_tree()
         self._restart_autobackup_timer()
         self._show_load_warnings_if_any()
@@ -441,6 +520,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка восстановления", str(e))
             return
 
+        self.action_history.clear()
+        self._refresh_undo_redo_actions()
         self._rebuild_tree()
         self._show_load_warnings_if_any()
         logger.info("Restored backup from %s", restored.backup_path)
@@ -488,10 +569,12 @@ class MainWindow(QMainWindow):
     ) -> None:
         if current is None:
             self.editor.set_object(None)
+            self._sync_relationships_window_with_selection(None)
             return
         data = current.data(0, Qt.UserRole)
         if isinstance(data, ModObject):
             self.editor.set_object(data)
+            self._sync_relationships_window_with_selection(data)
         else:
             self.editor.set_object(None)
 
@@ -547,6 +630,37 @@ class MainWindow(QMainWindow):
             return [data]
         return []
 
+    def _open_relationships_window(self) -> None:
+        objects = self._selected_objects()
+        if len(objects) != 1:
+            QMessageBox.information(
+                self,
+                "Связи объекта",
+                "Выбери один объект, чтобы открыть его связи.",
+            )
+            return
+
+        obj = objects[0]
+        if self._relationships_window is None:
+            relationships_window = ObjectRelationshipsWindow(self.project, obj, self.settings, self)
+            relationships_window.object_selected.connect(self._select_relationship_object)
+            self._relationships_window = relationships_window
+        else:
+            self._relationships_window.set_object(obj)
+
+        self._relationships_window.show()
+        self._relationships_window.raise_()
+        self._relationships_window.activateWindow()
+
+    def _sync_relationships_window_with_selection(self, obj: Optional[ModObject]) -> None:
+        window = self._relationships_window
+        if window is None or not window.follows_main_selection():
+            return
+        window.set_object(obj)
+
+    def _select_relationship_object(self, obj: ModObject) -> None:
+        self._select_object_in_tree(obj)
+
     # ---------- создание / удаление объектов ----------
 
     def _add_object(self) -> None:
@@ -558,12 +672,14 @@ class MainWindow(QMainWindow):
                 "Выбери категорию или существующий объект, чтобы понять, куда добавлять новый.",
             )
             return
+        before = self.action_history.capture()
         try:
             new_obj = self.project.create_object(schema_key)
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", f"Не удалось создать объект:\n{e}")
             return
 
+        self._record_project_action("Add object", before)
         self._rebuild_tree()
         self._select_object_in_tree(new_obj)
         self.editor.set_object(new_obj)
@@ -582,6 +698,7 @@ class MainWindow(QMainWindow):
             return
 
         obj: ModObject = data
+        self.editor.apply_changes()
         reply = QMessageBox.question(
             self,
             "Подтверждение удаления",
@@ -591,8 +708,10 @@ class MainWindow(QMainWindow):
         if reply != QMessageBox.Yes:
             return
 
+        before = self.action_history.capture()
         self.project.delete_object(obj)
-        self.editor.set_object(None)
+        self._record_project_action("Delete object", before)
+        self.editor.clear_selection_without_applying()
         self._rebuild_tree()
         self.statusBar().showMessage("Объект удалён", 5000)
 
@@ -627,12 +746,15 @@ class MainWindow(QMainWindow):
         if reply != QMessageBox.Yes:
             return
 
+        before = self.action_history.capture()
         try:
             moved = self.project.move_objects_to_file(objects, Path(target))
         except Exception as e:
             QMessageBox.critical(self, "Ошибка перемещения", str(e))
             return
 
+        if moved:
+            self._record_project_action("Move objects", before)
         self.editor.set_object(None)
         self._rebuild_tree()
         if moved:
@@ -715,6 +837,7 @@ class MainWindow(QMainWindow):
             if reply != QMessageBox.Yes:
                 return
 
+        before = self.action_history.capture()
         try:
             result = self.project.rename_object(
                 obj,
@@ -725,6 +848,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка переименования", str(e))
             return
 
+        self._record_project_action("Rename object", before)
         self.editor.clear_selection_without_applying()
         self._rebuild_tree()
         self._select_object_in_tree(obj)
