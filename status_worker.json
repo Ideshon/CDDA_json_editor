@@ -13,21 +13,66 @@
     "latest_check": {
       "unittest": {
         "status": "passed",
-        "tests_passed": 38,
+        "tests_passed": 48,
         "tests_skipped": 0,
         "warnings": 0,
         "pyright_errors": 0,
         "ruff_errors": 0,
-        "checked_at_utc": "2026-05-26T20:09:40Z",
+        "checked_at_utc": "2026-05-27T07:42:48Z",
         "test_command": ".\\tasks.cmd test"
       },
       "pyinstaller_build": {
         "status": "passed",
-        "checked_at_utc": "2026-05-26T20:09:40Z",
+        "checked_at_utc": "2026-05-27T07:42:48Z",
         "build_command": ".\\tasks.cmd build",
         "artifact": "dist/CDDA-0G_json_editor.exe",
-        "artifact_size_bytes": 35497280,
+        "artifact_size_bytes": 35506282,
         "notes": "PyInstaller warning file contains only standard optional/platform modules and no unresolved project imports."
+      },
+      "phase_5_relationship_window": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-27T07:42:48Z",
+        "notes": "MainWindow opens a modeless object relationships window with a custom pin/always-on-top control, native title-bar minimize/maximize/close controls, persisted window state, dynamic selection tracking, incoming and outgoing relationship tables, unresolved outgoing targets, and click-to-select navigation back to the main object tree."
+      },
+      "phase_5_relationship_window_state": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-27T07:42:48Z",
+        "notes": "The relationships window persists geometry/size, pin/always-on-top state, and dynamic selection checkbox state through application-local settings.ini."
+      },
+      "phase_5_relationship_window_state_manual": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-27T08:05:27Z",
+        "notes": "User confirmed the relationships window still works after adding persisted dialog/window state."
+      },
+      "phase_5_relationship_window_manual": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-27T07:25:20Z",
+        "notes": "User confirmed the relationships window works. Custom minimize, maximize, and close buttons were removed because those controls already exist in the native title bar."
+      },
+      "handoff_after_phase_5_commit": {
+        "status": "recorded",
+        "checked_at_utc": "2026-05-27T08:05:27Z",
+        "notes": "Final handoff before shutdown: Phase 4 undo/redo and Phase 5 relationships window are complete, validated, and ready to commit. Resume from Phase 6 field ordering after reading this status file and checking git log/status."
+      },
+      "phase_4_undo_redo": {
+        "status": "passed",
+        "checked_at_utc": "2026-05-27T06:15:26Z",
+        "notes": "ProjectActionHistory captures before/after ModProject edit snapshots; MainWindow exposes undo/redo actions in the Edit menu and toolbar; create/delete/move/rename object workflows and ObjectEditorWidget field changes are undoable and redoable. Delete first applies pending editor field changes, so undo restores the edited object state."
+      },
+      "phase_4_undo_redo_manual": {
+        "status": "passed_manual",
+        "checked_at_utc": "2026-05-27T06:25:57Z",
+        "notes": "User confirmed that Phase 4 undo/redo works."
+      },
+      "planning_hotkeys": {
+        "status": "updated",
+        "checked_at_utc": "2026-05-27T06:25:57Z",
+        "notes": "Added hotkeys and shortcut customization to the end of the project plan."
+      },
+      "phase_5_relationship_window_planning": {
+        "status": "updated",
+        "checked_at_utc": "2026-05-27T06:41:48Z",
+        "notes": "Added modeless dialog/window rules and Phase 5 requirements: dynamic object tracking toggle and click-to-select source/target objects in the main window."
       },
       "phase_4_ui_state_and_logging": {
         "status": "passed",
@@ -43,6 +88,11 @@
         "status": "recorded",
         "checked_at_utc": "2026-05-26T20:19:15Z",
         "notes": "Resume with Phase 4 undo/redo. Read status_worker.json first, keep existing uncommitted work, do not delete reference/generated files, and use TDD before behavior changes."
+      },
+      "phase_4_undo_redo_context_correction": {
+        "status": "recorded",
+        "checked_at_utc": "2026-05-27T05:51:26Z",
+        "notes": "User clarified that the current work is Phase 4 undo/redo and it is not complete. Do not infer completion from a clean git worktree; continue with TDD before implementation."
       },
       "phase_4_autobackup": {
         "status": "passed",
@@ -247,24 +297,29 @@
     {
       "phase": 7,
       "name": "Data safety, backups, autosave, and undo/redo",
-      "status": "in_progress",
+      "status": "completed",
       "outcomes": [
         "Create a mod backup automatically when opening a mod folder or JSON file. Completed.",
         "Add an explicit restore-from-backup button or command. Completed.",
         "Add runtime autosave/autobackup with an enable/disable setting and configurable interval. Completed.",
         "Persist window size, toolbar layout, and splitter sizes. Completed.",
         "Add console and file logging. Completed.",
-        "Add undo and redo buttons for editor actions."
+        "Add undo and redo buttons for editor actions. Completed for create, delete, move, rename, and editor field changes."
       ]
     },
     {
       "phase": 8,
       "name": "Object relationship window",
-      "status": "planned",
+      "status": "completed",
       "outcomes": [
-        "Open a dedicated relationships window from a selected object.",
-        "Show objects that reference the selected object.",
-        "Show existing loaded objects referenced by the selected object."
+        "Open a dedicated relationships window from a selected object. Completed.",
+        "Keep the relationships window modeless so the main window remains usable while it is open. Completed.",
+        "Provide a custom pin/always-on-top control and use native title-bar minimize, maximize/restore, and close controls for the relationships window. Completed.",
+        "Persist relationships window geometry, pin state, and dynamic selection state in application-local settings.ini. Completed.",
+        "Add a dynamic selection checkbox: when enabled, the relationships window follows the object selected in the main window; when disabled, it stays on the originally inspected object. Completed.",
+        "Show objects that reference the selected object. Completed.",
+        "Show existing loaded objects referenced by the selected object. Completed, including unresolved outgoing targets.",
+        "Clicking a source or target object in the relationships window selects that object in the main window. Completed."
       ]
     },
     {
@@ -286,6 +341,17 @@
         "Create a dedicated dialogue editing window inside the application first.",
         "Represent dialogue trees and response choices across all dialogue JSON in the loaded mod.",
         "Evaluate later whether this should become a separate dialogger-style program."
+      ]
+    },
+    {
+      "phase": 11,
+      "name": "Hotkeys and shortcut customization",
+      "status": "planned",
+      "outcomes": [
+        "Define default keyboard shortcuts for common editor actions.",
+        "Add an in-app shortcut settings window.",
+        "Persist user shortcut overrides in application-local settings.ini.",
+        "Validate duplicate shortcut conflicts and allow restoring defaults."
       ]
     }
   ],
@@ -381,17 +447,17 @@
       "status": "completed"
     },
     {
-      "priority": 80,
+      "priority": -100,
       "task": "Phase 4: add undo and redo buttons for editor actions.",
-      "status": "planned"
+      "status": "completed"
     },
     {
-      "priority": 70,
+      "priority": -100,
       "task": "Phase 5: add an object relationships window with incoming and outgoing links.",
-      "status": "planned"
+      "status": "completed"
     },
     {
-      "priority": 60,
+      "priority": 80,
       "task": "Phase 6: add drag-and-drop field ordering that is preserved in saved JSON.",
       "status": "planned"
     },
@@ -408,6 +474,11 @@
     {
       "priority": 30,
       "task": "Phase 9: build a dedicated dialogue editing window before considering a separate program.",
+      "status": "planned"
+    },
+    {
+      "priority": 20,
+      "task": "Phase 10: add hotkeys and in-app shortcut customization.",
       "status": "planned"
     },
     {
@@ -456,6 +527,18 @@
     {
       "priority": 7550,
       "rule": "Test output must be verbose, and make command output must expose executed checks through explicit echo messages so the run shows steps, individual test cases, and a useful result summary."
+    },
+    {
+      "priority": 7520,
+      "rule": "Dialog and auxiliary windows should be modeless by default so they do not block work in the main window, unless modal behavior is necessary for safety, confirmation, or preventing inconsistent state."
+    },
+    {
+      "priority": 7510,
+      "rule": "Dialog and auxiliary windows should provide a pin/always-on-top control when useful, and should rely on native title-bar minimize, maximize/restore, and close controls when the platform and window type already provide them."
+    },
+    {
+      "priority": 7505,
+      "rule": "Dialog and auxiliary windows should remember practical user state, including geometry and user toggles, through application-local settings when this does not conflict with safe modal workflows."
     },
     {
       "priority": 7540,
@@ -624,44 +707,62 @@
     }
   },
   "request_analysis": {
-    "updated_at_utc": "2026-05-26T20:19:15Z",
-    "request": "User confirmed the latest change works and asked to record what is needed to continue the project before shutdown.",
+    "updated_at_utc": "2026-05-27T08:05:27Z",
+    "request": "User confirmed the relationships window state persistence works and asked to commit the completed work and write a clear self-contained status for resuming after the limit reset.",
     "analysis": [
-      "The most recent local program-files change is manually confirmed working by the user.",
-      "The next active project task remains Phase 4 undo/redo buttons for editor actions.",
-      "The repository contains intentional working changes and untracked generated/reference files, so the next session must not reset or clean the tree."
+      "No further behavior change is requested; this is a status and Git handoff task.",
+      "The completed work includes Phase 4 undo/redo, Phase 5 relationships window, persisted relationships window state, tests, docs, and status updates.",
+      "The next session must not need chat context: status should say what is finished, what passed, what was committed, and exactly where to resume.",
+      "After commit, resume from Phase 6: drag-and-drop field ordering preserved in saved JSON."
     ],
     "planned_scope": [
-      "Record manual confirmation of the latest change.",
-      "Record the next implementation target and validation commands for continuation.",
-      "Record cautions about existing worktree state and files that should not be touched."
+      "Record manual confirmation and a shutdown handoff in status_worker.json.",
+      "Validate status_worker.json syntax after the handoff update.",
+      "Stage the completed Phase 4 and Phase 5 code, tests, docs, and status files.",
+      "Create one Git commit for the completed undo/redo and relationships work."
     ],
     "validation_plan": [
-      "Run python -m json.tool status_worker.json after editing status.",
-      "For the next behavior change, start with failing tests and then run .\\tasks.cmd check/test/build."
+      "Use the latest full validation already recorded at 2026-05-27T07:42:48Z: .\\tasks.cmd check, .\\tasks.cmd test with 48 tests, .\\tasks.cmd build, python -m json.tool status_worker.json, and git diff --check.",
+      "Run python -m json.tool status_worker.json after this final handoff edit.",
+      "After committing, check git status and git log -1."
     ],
-    "execution_result": "completed: recorded manual confirmation, continuation target, validation commands, and worktree cautions for the next session."
+    "execution_result": "completed: final handoff recorded before commit; the commit should include Phase 4 undo/redo, Phase 5 relationships window, persisted relationships window state, tests, docs, and status updates."
   },
   "handoff": {
-    "updated_at_utc": "2026-05-26T20:19:15Z",
+    "updated_at_utc": "2026-05-27T08:05:27Z",
     "current_state": [
-      "Application is working after localizing support files: logs/editor.log and settings.ini are stored beside the program.",
-      "Last full validation passed: .\\tasks.cmd check, .\\tasks.cmd test with 38 tests, .\\tasks.cmd build, and python -m json.tool status_worker.json.",
-      "The built executable was regenerated at dist/CDDA-0G_json_editor.exe."
+      "User manually confirmed the Phase 5 relationships window works after removing duplicate custom title-bar buttons and after adding persisted dialog/window state.",
+      "Phase 4 undo/redo is complete: ProjectActionHistory stores before/after ModProject snapshots; MainWindow exposes undo/redo in the Edit menu and toolbar; create, delete, move, rename, and editor field changes are undoable and redoable.",
+      "Phase 5 relationships window is complete: it is modeless, uses native minimize/maximize/close title-bar controls, keeps a custom pin/always-on-top button, has a dynamic-selection checkbox, shows incoming/outgoing/unresolved references, supports click-to-select navigation, and persists geometry, pin state, and dynamic-selection state in settings.ini.",
+      "Documentation was updated in README.md and docs/ for undo/redo, relationships, modeless auxiliary-window behavior, persisted auxiliary-window state, and the next phases.",
+      "Last full validation passed at 2026-05-27T07:42:48Z: .\\tasks.cmd check, .\\tasks.cmd test with 48 tests, .\\tasks.cmd build, python -m json.tool status_worker.json, and git diff --check. PyInstaller rebuilt dist/CDDA-0G_json_editor.exe with size 35506282 bytes.",
+      "A Git commit was requested immediately after this handoff update. On resume, use git log -1 --oneline to identify the exact commit and git status --short --branch to confirm the tree state."
+    ],
+    "commit_scope": [
+      "CDDA_editor/action_history.py: new project action history for undo/redo.",
+      "CDDA_editor/project.py: project edit-state capture/restore support.",
+      "CDDA_editor/editor.py: editor field changes can be recorded for undo/redo.",
+      "CDDA_editor/main.py: undo/redo menu and toolbar actions, relationships-window command, settings handoff, relationship selection sync.",
+      "CDDA_editor/relationships.py: modeless relationships window with pin, dynamic selection, incoming/outgoing tables, click navigation, and persisted window state.",
+      "tests/test_action_history.py, tests/test_main_window_undo_redo.py, tests/test_main_window_relationships.py: coverage for new behavior.",
+      "README.md, docs/*.md, status_worker.json: documentation, plan, validation, and handoff updates."
     ],
     "resume_steps": [
-      "Read status_worker.json first and follow the project-status-check workflow.",
-      "Continue Phase 4 with undo/redo buttons for editor actions.",
-      "Start with failing tests before implementation, as required by the project rules.",
-      "After implementation, run .\\tasks.cmd check, .\\tasks.cmd test, .\\tasks.cmd build, and python -m json.tool status_worker.json."
+      "Run git status --short --branch. Expected after the requested commit: no uncommitted tracked changes from Phases 4/5. Ignored local outputs such as logs/, settings.ini, build/, dist/, backups, or reference files may still exist on disk.",
+      "Run git log -1 --oneline to see the handoff commit.",
+      "Read status_worker.json and follow the project-status-check workflow; no earlier chat context should be required.",
+      "Continue with Phase 6: drag-and-drop field ordering preserved in saved JSON.",
+      "Start Phase 6 with a failing test before implementation, as required by the project TDD rules.",
+      "After Phase 6 implementation, run .\\tasks.cmd check, .\\tasks.cmd test, .\\tasks.cmd build, python -m json.tool status_worker.json, and git diff --check."
     ],
     "suggested_next_scope": [
-      "Define an action-history mechanism owned outside the UI widgets, then wire menu/toolbar back-forward actions in MainWindow.",
-      "Cover create/delete/move/rename object operations first because they already have project-model tests.",
-      "Then cover editor field changes through ObjectEditorWidget.apply_changes so undo/redo protects normal object editing."
+      "Add a focused failing test proving a selected object's field order can be changed through the editor UI and then saved in that order.",
+      "Inspect ObjectEditorWidget field-row creation and raw JSON editing so drag/reorder behavior does not discard pending edits.",
+      "Use Python dict insertion order and existing json_io/ModProject save paths; avoid ad hoc string rewriting of JSON.",
+      "Keep the first implementation narrow: reorder fields for one selected object, preserve order after save/reload, and leave schema help editing for the later planned phase."
     ],
     "worktree_cautions": [
-      "There are many intentional uncommitted changes from previous phases; do not revert them.",
+      "Check git status at the start of work and preserve existing generated/reference files.",
       "Do not delete or modify Slaanesh/ unless the user explicitly asks.",
       "Leave untracked Slaanesh.zip and .cdda_mod_editor_backups/ alone unless the user explicitly asks.",
       "logs/ and settings.ini are local application outputs and are ignored by .gitignore."
@@ -669,8 +770,8 @@
   },
   "recommended_next_action": {
     "type": "implementation",
-    "target": "Phase 4 undo/redo",
-    "intent": "Add back/forward buttons for undoing and redoing editor actions."
+    "target": "Phase 6 field ordering",
+    "intent": "Add drag-and-drop field ordering that is preserved in saved JSON."
   },
   "change_based_make_validation": [
     {
@@ -705,7 +806,7 @@
     }
   ],
   "test_file_statuses": {
-    "last_updated_utc": "2026-05-26T20:09:40Z",
+    "last_updated_utc": "2026-05-27T07:42:48Z",
     "update_rule": "Refresh after each full unittest run.",
     "source": {
       "pytest_junitxml": "",
@@ -713,14 +814,19 @@
       "unittest_command": ".\\tasks.cmd test"
     },
     "summary": {
-      "files_total": 14,
-      "files_passed": 14,
+      "files_total": 17,
+      "files_passed": 17,
       "files_failed": 0,
       "files_error": 0,
       "files_skipped": 0,
       "files_mixed": 0
     },
     "files": [
+      {
+        "path": "tests/test_action_history.py",
+        "status": "passed",
+        "tests": 2
+      },
       {
         "path": "tests/test_app_logging.py",
         "status": "passed",
@@ -757,6 +863,11 @@
         "tests": 2
       },
       {
+        "path": "tests/test_main_window_relationships.py",
+        "status": "passed",
+        "tests": 5
+      },
+      {
         "path": "tests/test_project_renaming.py",
         "status": "passed",
         "tests": 3
@@ -770,6 +881,11 @@
         "path": "tests/test_main_window_state.py",
         "status": "passed",
         "tests": 2
+      },
+      {
+        "path": "tests/test_main_window_undo_redo.py",
+        "status": "passed",
+        "tests": 3
       },
       {
         "path": "tests/test_package_entrypoint.py",

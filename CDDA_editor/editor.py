@@ -1,6 +1,6 @@
 # editor.py
 from __future__ import annotations
-from typing import Dict, Any, Optional
+from typing import Callable, Dict, Any, Optional
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
@@ -42,6 +42,7 @@ class ObjectEditorWidget(QWidget):
         self.current_schema: Optional[Dict[str, Any]] = None
         self.field_widgets: Dict[str, QWidget] = {}
         self.fields_meta: Dict[str, Dict[str, Any]] = {}
+        self.change_recorder: Optional[Callable[[str, Callable[[], bool]], bool]] = None
 
         self.header_label = QLabel("Ничего не выбрано", self)
         self.file_label = QLabel("Файл: -", self)
@@ -270,9 +271,16 @@ class ObjectEditorWidget(QWidget):
 
         ftype = meta.get("type", "string")
         default_val = self._default_value_for_type(ftype)
-        self.current_obj.data[key] = default_val
-        self.project.mark_dirty(self.current_obj.file_path)
-        self._rebuild_form()
+        def add_field() -> bool:
+            if not self.current_obj:
+                return False
+            self.current_obj.data[key] = default_val
+            self.project.mark_dirty(self.current_obj.file_path)
+            self.project.rebuild_indexes()
+            return True
+
+        if self._record_change("Add object field", add_field):
+            self._rebuild_form()
 
     def _delete_field(self, key: str) -> None:
         if not self.current_obj:
@@ -287,9 +295,16 @@ class ObjectEditorWidget(QWidget):
         )
         if reply != QMessageBox.Yes:
             return
-        del self.current_obj.data[key]
-        self.project.mark_dirty(self.current_obj.file_path)
-        self._rebuild_form()
+        def delete_field() -> bool:
+            if not self.current_obj or key not in self.current_obj.data:
+                return False
+            del self.current_obj.data[key]
+            self.project.mark_dirty(self.current_obj.file_path)
+            self.project.rebuild_indexes()
+            return True
+
+        if self._record_change("Delete object field", delete_field):
+            self._rebuild_form()
 
     def _make_vertical_expanding(self, w: QWidget) -> QWidget:
         sp = w.sizePolicy()
@@ -430,10 +445,19 @@ class ObjectEditorWidget(QWidget):
 
     # ---------- запись значений ----------
 
-    def apply_changes(self) -> None:
-        if not self.current_obj or not self.fields_meta:
-            return
+    def apply_changes(self) -> bool:
+        return self._record_change("Edit object fields", self._apply_changes)
 
+    def _record_change(self, label: str, change: Callable[[], bool]) -> bool:
+        if self.change_recorder is not None:
+            return self.change_recorder(label, change)
+        return change()
+
+    def _apply_changes(self) -> bool:
+        if not self.current_obj or not self.fields_meta:
+            return False
+
+        changed = False
         for key, meta in self.fields_meta.items():
             widget = self.field_widgets.get(key)
             if widget is None:
@@ -444,6 +468,11 @@ class ObjectEditorWidget(QWidget):
                 continue
             self.current_obj.data[key] = new_val
             self.project.mark_dirty(self.current_obj.file_path)
+            changed = True
+
+        if changed:
+            self.project.rebuild_indexes()
+        return changed
 
     def _read_widget_value(self, key: str, meta: Dict[str, Any],
                            widget: QWidget, old_val: Any) -> Any:
